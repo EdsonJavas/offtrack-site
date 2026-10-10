@@ -62,7 +62,7 @@ export function Header() {
           rel="noopener noreferrer"
           className={styles.instagram}
         >
-          <Star size={10} />
+          <Star size={12} />
           <span>{brand.instagram.handle}</span>
         </a>
 
