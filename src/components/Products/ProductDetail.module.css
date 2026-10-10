@@ -289,6 +289,7 @@
   display: grid;
   gap: 12px;
   align-content: start;
+  min-width: 0;
   padding: 30px 20px 18px;
   background: var(--c-white);
   color: var(--c-black);
@@ -303,6 +304,11 @@
     radial-gradient(5px at 50% 0, transparent 98%, #000) 50% 0 / 20px 100% repeat-x,
     radial-gradient(5px at 50% 100%, transparent 98%, #000) 50% 100% / 20px 100% repeat-x,
     linear-gradient(#000, #000) 0 10px / 100% calc(100% - 20px) no-repeat;
+}
+
+/* Nenhum bloco da etiqueta pode impor largura mínima maior que ela. */
+.tag > * {
+  min-width: 0;
 }
 
 @keyframes swing {
@@ -413,11 +419,15 @@
   overflow-wrap: anywhere;
 }
 
+/* Pode quebrar linha: no celular o preço em Syne + a entrada não cabem lado a lado
+   e, sem isso, a etiqueta inteira era empurrada para fora da tela. */
 .priceBlock {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
+  gap: 8px 16px;
+  min-width: 0;
   padding: 10px 0;
   border-top: 2px solid var(--c-black);
   border-bottom: 1px dashed rgba(10, 10, 10, 0.45);
@@ -426,7 +436,7 @@
 .price {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(36px, 4vw, 54px);
+  font-size: clamp(30px, 8.6vw, 54px);
   line-height: 0.9;
   letter-spacing: -0.03em;
 }
@@ -763,6 +773,10 @@
     min-height: 0;
     /* distribui o espaço que sobrar entre os blocos */
     align-content: space-between;
+  }
+
+  .price {
+    font-size: clamp(36px, 4vw, 54px);
   }
 }
 
