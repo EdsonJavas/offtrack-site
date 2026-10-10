@@ -4,7 +4,7 @@ import styles from "./Faq.module.css";
 
 export function Faq() {
   return (
-    <section className={styles.section}>
+    <section id="faq" className={styles.section}>
       <div className={`container ${styles.grid}`}>
         <Reveal className={styles.aside}>
           <p className="eyebrow">Perguntas frequentes</p>

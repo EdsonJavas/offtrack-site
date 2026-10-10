@@ -76,13 +76,20 @@
 }
 
 .tag {
-  margin-top: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+  padding: 8px 14px;
+  border: 1px solid var(--line-strong);
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--fg-muted);
+  color: var(--c-white);
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(6px);
   opacity: 0;
 }
 

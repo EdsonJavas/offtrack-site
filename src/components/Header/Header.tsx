@@ -6,10 +6,12 @@ import { useCart } from "@/components/Cart/CartProvider";
 import { Star } from "@/components/ui/Star";
 import styles from "./Header.module.css";
 
+/** Na ordem em que as seções aparecem na página. */
 const links = [
   { href: "#selecao", label: "Seleção" },
   { href: "#como-funciona", label: "Como funciona" },
   { href: "#marca", label: "Marca" },
+  { href: "#faq", label: "Dúvidas" },
   { href: "#contato", label: "Contato" },
 ];
 
