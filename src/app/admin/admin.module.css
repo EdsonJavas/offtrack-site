@@ -90,6 +90,19 @@
   line-height: 1.5;
 }
 
+.noticeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.noticeRow .danger {
+  border: 1px solid var(--line-strong);
+  color: var(--c-white);
+}
+
 .notice code {
   padding: 1px 6px;
   background: var(--c-gray-800);

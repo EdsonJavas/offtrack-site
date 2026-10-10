@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/format";
 import { brand } from "@/data/brand";
 import { LoginForm } from "./LoginForm";
 import {
+  deleteExamplesAction,
   deleteProductAction,
   logoutAction,
   toggleAvailableAction,
@@ -76,11 +77,18 @@ export default async function AdminPage({
       )}
 
       {example && (
-        <p className={styles.notice}>
-          O site está mostrando o <strong>catálogo de exemplo</strong> (fotos de
-          banco, preços fictícios). Assim que você cadastrar a primeira peça, o
-          exemplo some.
-        </p>
+        <div className={`${styles.notice} ${styles.noticeRow}`}>
+          <p>
+            O site está mostrando <strong>peças de exemplo</strong> (fotos de
+            banco, preços fictícios). Você pode editar cada uma, excluir uma a
+            uma ou apagar todas de uma vez.
+          </p>
+          <form action={deleteExamplesAction}>
+            <button type="submit" className={styles.danger}>
+              Excluir todos os exemplos
+            </button>
+          </form>
+        </div>
       )}
 
       <ul className={styles.list}>
@@ -109,28 +117,21 @@ export default async function AdminPage({
               <p className={styles.itemPrice}>{formatPrice(p.priceCents)}</p>
             </div>
             <div className={styles.itemActions}>
-              {!p.example && (
-                <>
-                  <Link
-                    href={`/admin/produto/${p.id}`}
-                    className={styles.ghost}
-                  >
-                    Editar
-                  </Link>
-                  <form action={toggleAvailableAction}>
-                    <input type="hidden" name="id" value={p.id} />
-                    <button type="submit" className={styles.ghost}>
-                      {p.available ? "Ocultar" : "Mostrar"}
-                    </button>
-                  </form>
-                  <form action={deleteProductAction}>
-                    <input type="hidden" name="id" value={p.id} />
-                    <button type="submit" className={styles.danger}>
-                      Excluir
-                    </button>
-                  </form>
-                </>
-              )}
+              <Link href={`/admin/produto/${p.id}`} className={styles.ghost}>
+                Editar
+              </Link>
+              <form action={toggleAvailableAction}>
+                <input type="hidden" name="id" value={p.id} />
+                <button type="submit" className={styles.ghost}>
+                  {p.available ? "Ocultar" : "Mostrar"}
+                </button>
+              </form>
+              <form action={deleteProductAction}>
+                <input type="hidden" name="id" value={p.id} />
+                <button type="submit" className={styles.danger}>
+                  Excluir
+                </button>
+              </form>
             </div>
           </li>
         ))}

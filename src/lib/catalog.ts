@@ -69,26 +69,47 @@ export async function getProducts(): Promise<Product[]> {
   return (await loadProducts()).filter((p) => p.available);
 }
 
-/** Verdadeiro enquanto nenhuma peça real foi cadastrada. */
+/** Verdadeiro enquanto o site ainda mostra alguma peça de exemplo. */
 export async function isExampleCatalog(): Promise<boolean> {
-  return (await readCatalog()) === null;
+  const catalog = await readCatalog();
+  return catalog === null || catalog.products.some((p) => p.example);
+}
+
+/**
+ * Lista sobre a qual uma edição/exclusão acontece. Sem catálogo salvo, os
+ * exemplos passam a valer como peças de verdade (ficam salvos com `example`),
+ * para que o dono possa editar ou excluir um a um.
+ */
+async function editableProducts(): Promise<Product[]> {
+  return (await readCatalog())?.products ?? seedProducts;
 }
 
 export async function saveProduct(product: Product) {
-  const current = (await readCatalog())?.products ?? [];
+  const catalog = await readCatalog();
+  const current = catalog?.products ?? seedProducts;
   const index = current.findIndex((p) => p.id === product.id);
+  // Primeira peça real num catálogo ainda sem nada salvo: os exemplos somem.
   const next =
     index === -1
-      ? [product, ...current]
+      ? [product, ...(catalog ? current : [])]
       : current.map((p) => (p.id === product.id ? product : p));
   await writeCatalog({ version: 1, products: next });
 }
 
 export async function deleteProduct(id: string) {
-  const current = (await readCatalog())?.products ?? [];
+  const current = await editableProducts();
   await writeCatalog({
     version: 1,
     products: current.filter((p) => p.id !== id),
+  });
+}
+
+/** Remove todas as peças de exemplo de uma vez. */
+export async function deleteExamples() {
+  const current = await editableProducts();
+  await writeCatalog({
+    version: 1,
+    products: current.filter((p) => !p.example),
   });
 }
 

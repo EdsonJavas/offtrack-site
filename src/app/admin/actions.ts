@@ -9,6 +9,7 @@ import {
   isAuthenticated,
 } from "@/lib/adminAuth";
 import {
+  deleteExamples,
   deleteProduct,
   getAllProducts,
   saveImage,
@@ -138,6 +139,7 @@ export async function saveProductAction(
     badge: badge === "Novo" || badge === "Destaque" ? badge : undefined,
     sku: String(formData.get("sku") ?? "").trim() || undefined,
     available: formData.get("available") === "on",
+    // Editar um exemplo o transforma em peça de verdade (o selo some).
     updatedAt: new Date().toISOString(),
   };
 
@@ -151,7 +153,7 @@ export async function toggleAvailableAction(formData: FormData) {
   await requireAuth();
   const id = String(formData.get("id") ?? "");
   const product = (await getAllProducts()).find((p) => p.id === id);
-  if (!product || product.example) return;
+  if (!product) return;
   await saveProduct({
     ...product,
     available: !product.available,
@@ -165,6 +167,13 @@ export async function deleteProductAction(formData: FormData) {
   await requireAuth();
   const id = String(formData.get("id") ?? "");
   await deleteProduct(id);
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
+export async function deleteExamplesAction() {
+  await requireAuth();
+  await deleteExamples();
   revalidatePath("/");
   revalidatePath("/admin");
 }

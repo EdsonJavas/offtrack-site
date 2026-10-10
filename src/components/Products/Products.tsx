@@ -167,7 +167,9 @@ export function Products({ products }: { products: Product[] }) {
         <p className={styles.emptyFilter}>
           {filter === "Favoritos"
             ? "Nenhuma peça favoritada ainda. Toque na estrela de um card."
-            : "Nenhuma peça nesta categoria."}
+            : products.length === 0
+              ? "Novas peças em breve. Chama no Direct para saber o que já dá para encomendar."
+              : "Nenhuma peça nesta categoria."}
         </p>
       ) : (
         <div

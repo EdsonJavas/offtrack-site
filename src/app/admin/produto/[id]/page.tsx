@@ -17,7 +17,7 @@ export default async function ProductEditPage({
   const product =
     id === "novo"
       ? null
-      : (await getAllProducts()).find((p) => p.id === id && !p.example);
+      : (await getAllProducts()).find((p) => p.id === id);
   if (id !== "novo" && !product) notFound();
 
   return (
