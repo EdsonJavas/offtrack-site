@@ -14,6 +14,7 @@ import {
 import { formatPrice, splitDeposit } from "@/lib/format";
 import { buildOrderMessage, sendOrder, type SendResult } from "@/lib/order";
 import { useImageTone } from "@/hooks/useImageTone";
+import { flyToCart } from "@/lib/flyToCart";
 import { useModal } from "@/hooks/useModal";
 import { useCart } from "@/components/Cart/CartProvider";
 import { OrderMessage } from "@/components/Cart/OrderMessage";
@@ -32,7 +33,14 @@ export function ProductDetail({
   initialVariant,
   onClose,
 }: ProductDetailProps) {
-  const [variant, setVariant] = useState(initialVariant);
+  const [variant, setVariantState] = useState(initialVariant);
+  // Galeria da cor: principal + extras. Trocar de cor volta para a principal.
+  const [photo, setPhoto] = useState(0);
+  const photos = [variant.image, ...(variant.images ?? [])];
+  const setVariant = (v: ProductVariant) => {
+    setVariantState(v);
+    setPhoto(0);
+  };
   const [size, setSize] = useState<string | null>(null);
   const [showMeasures, setShowMeasures] = useState(false);
   const [nudge, setNudge] = useState(false);
@@ -41,7 +49,7 @@ export function ProductDetail({
   const panelRef = useRef<HTMLDivElement>(null);
   const cart = useCart();
   // Foto clara → controles escuros, e vice-versa.
-  const tones = useImageTone(variant.image);
+  const tones = useImageTone(photos[photo] ?? variant.image);
 
   useModal(true, panelRef, onClose);
 
@@ -55,8 +63,10 @@ export function ProductDetail({
   const addToCart = () => {
     if (!requireSize()) return;
     cart.add(product, variant, size!);
+    // A foto grande voa até o carrinho; a gaveta abre quando ela chega.
+    const photo = panelRef.current?.querySelector<HTMLElement>("img");
     onClose();
-    cart.open();
+    flyToCart(photo).then(() => cart.open());
   };
 
   /** Esta peça + o que já está no carrinho, numa mensagem só. */
@@ -138,6 +148,7 @@ export function ProductDetail({
             name={product.name}
             kind={kind}
             variant={variant}
+            image={photos[photo]}
             size={measureSize}
             measurements={measures}
             showMeasures={showMeasures}
@@ -155,12 +166,39 @@ export function ProductDetail({
               Medidas
             </button>
             <span className={styles.counter}>
-              {String(product.variants.indexOf(variant) + 1).padStart(2, "0")} /{" "}
-              {String(product.variants.length).padStart(2, "0")}
+              {photos.length > 1
+                ? `${String(photo + 1).padStart(2, "0")} / ${String(photos.length).padStart(2, "0")}`
+                : `${String(product.variants.indexOf(variant) + 1).padStart(2, "0")} / ${String(product.variants.length).padStart(2, "0")}`}
             </span>
           </div>
 
-          {product.variants.length > 1 && (
+          {/* Miniaturas: a galeria da cor quando há mais de uma foto; senão, as cores. */}
+          {photos.length > 1 ? (
+            <div className={styles.thumbs}>
+              {photos.map((src, i) => (
+                <button
+                  key={src}
+                  type="button"
+                  aria-pressed={i === photo}
+                  aria-label={`Foto ${i + 1}`}
+                  className={`${styles.thumb} ${i === photo ? styles.thumbActive : ""}`}
+                  onClick={() => setPhoto(i)}
+                >
+                  <Image
+                    src={src}
+                    alt=""
+                    fill
+                    sizes="72px"
+                    style={{
+                      objectFit: "cover",
+                      objectPosition:
+                        i === 0 ? (variant.position ?? "50% 50%") : "50% 50%",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+          ) : product.variants.length > 1 && (
             <div className={styles.thumbs}>
               {product.variants.map((v) => (
                 <button

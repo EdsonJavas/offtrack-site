@@ -363,11 +363,106 @@ textarea.input {
   letter-spacing: 0.1em;
 }
 
+.photoCol {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
 .photo {
   position: relative;
   aspect-ratio: 4 / 4.6;
   overflow: hidden;
   background: var(--c-gray-800);
+}
+
+.photoTag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 6px;
+  background: var(--c-white);
+  color: var(--c-black);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Galeria: miniaturas em grade, cada uma com "usar no card" e "remover". */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.gallery:empty {
+  display: none;
+}
+
+.galleryItem {
+  position: relative;
+  aspect-ratio: 4 / 4.6;
+  overflow: hidden;
+  background: var(--c-gray-800);
+}
+
+.galleryPhoto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.galleryPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.galleryActions {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: rgba(10, 10, 10, 0.75);
+}
+
+.galleryActions button {
+  padding: 5px 0;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--c-white);
+}
+
+.galleryActions button:hover {
+  background: var(--c-white);
+  color: var(--c-black);
+}
+
+.galleryAdd {
+  display: grid;
+  place-content: center;
+  gap: 2px;
+  aspect-ratio: 4 / 4.6;
+  border: 1px dashed var(--line-strong);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--c-gray-200);
+}
+
+.galleryAdd span:first-child {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.galleryAdd:hover {
+  background: var(--c-white);
+  color: var(--c-black);
 }
 
 .fileInput {
@@ -393,7 +488,11 @@ textarea.input {
 }
 
 .photoButton {
+  position: relative;
+  display: block;
   padding: 10px 4px;
+  text-align: center;
+  cursor: pointer;
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.18em;

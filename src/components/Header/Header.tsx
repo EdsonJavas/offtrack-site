@@ -6,6 +6,7 @@ import Link from "next/link";
 import { brand } from "@/data/brand";
 import { useCart } from "@/components/Cart/CartProvider";
 import { useModal } from "@/hooks/useModal";
+import { CART_BUMP_EVENT } from "@/lib/flyToCart";
 import { InstagramIcon } from "@/components/ui/InstagramIcon";
 import { LogoStar } from "@/components/ui/LogoStar";
 import styles from "./Header.module.css";
@@ -35,6 +36,24 @@ export function Header() {
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   useModal(menuOpen, menuRef, closeMenu);
+
+  // Pulo do botão quando uma peça chega (ver lib/flyToCart).
+  const [bump, setBump] = useState(false);
+  useEffect(() => {
+    let timer = 0;
+    const onBump = () => {
+      setBump(false);
+      // Reinicia a animação mesmo em adições seguidas.
+      requestAnimationFrame(() => setBump(true));
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setBump(false), 700);
+    };
+    window.addEventListener(CART_BUMP_EVENT, onBump);
+    return () => {
+      window.removeEventListener(CART_BUMP_EVENT, onBump);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   return (
     <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
@@ -68,7 +87,8 @@ export function Header() {
 
         <button
           type="button"
-          className={`${styles.cart} ${cart.count > 0 ? styles.cartFull : ""}`}
+          data-cart-button
+          className={`${styles.cart} ${cart.count > 0 ? styles.cartFull : ""} ${bump ? styles.cartBump : ""}`}
           onClick={cart.open}
           aria-label={`Abrir carrinho, ${cart.count} ${cart.count === 1 ? "peça" : "peças"}`}
         >

@@ -344,3 +344,37 @@
 .add:hover .addIcon {
   transform: rotate(90deg);
 }
+
+/* Confirmação: botão inverte e o card dá um "aperto" rápido (só transform). */
+.addDone,
+.addDone:hover {
+  background: var(--c-white);
+  color: var(--c-black);
+}
+
+.addDone .addIcon,
+.addDone:hover .addIcon {
+  background: var(--c-black);
+  color: var(--c-white);
+  transform: none;
+  animation: checkPop 500ms var(--ease-out);
+}
+
+.cardAdded {
+  animation: cardSqueeze 500ms var(--ease-out);
+}
+
+@keyframes cardSqueeze {
+  30% {
+    transform: scale(0.985);
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+}

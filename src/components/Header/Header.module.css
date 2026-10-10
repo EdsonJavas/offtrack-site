@@ -7,14 +7,16 @@
   justify-content: space-between;
   gap: 16px;
   padding: 18px var(--gutter);
-  mix-blend-mode: difference;
+  /* Branco direto, sem mix-blend-mode: sobre o hero escuro o resultado é o
+     mesmo, e o blend num elemento fixo obrigava o iOS a recompor a página
+     inteira a cada frame de scroll. */
+  color: var(--c-white);
   transition: padding var(--dur) var(--ease-out), background var(--dur) var(--ease-out);
 }
 
-/* Depois do hero: faixa escura sólida, sem se misturar com o conteúdo. */
+/* Depois do hero: faixa escura sólida. */
 .scrolled {
   padding-block: 12px;
-  mix-blend-mode: normal;
   background: rgba(10, 10, 10, 0.78);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
@@ -115,7 +117,6 @@
   background: currentColor;
 }
 
-/* Com mix-blend difference, o texto dentro do fundo "currentColor" some; força contraste. */
 .cartFull .cartCount {
   color: var(--c-black);
   background: var(--c-white);
@@ -125,6 +126,42 @@
 .cart:hover {
   background: var(--c-white);
   color: var(--c-black);
+}
+
+/* Peça chegou: o botão pula e o contador pisca em branco. */
+.cartBump {
+  animation: cartBump 600ms var(--ease-out);
+}
+
+.cartBump .cartCount {
+  animation: countFlash 600ms var(--ease-out);
+}
+
+@keyframes cartBump {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.14) rotate(-3deg);
+  }
+  60% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes countFlash {
+  0%,
+  100% {
+    background: transparent;
+    color: inherit;
+  }
+  35% {
+    background: var(--c-white);
+    color: var(--c-black);
+  }
 }
 
 /* ---- Menu do celular ---- */
@@ -161,7 +198,6 @@
   padding: 18px var(--gutter) 28px;
   background: var(--c-black);
   color: var(--c-white);
-  mix-blend-mode: normal;
   animation: menuIn 300ms var(--ease-out);
 }
 

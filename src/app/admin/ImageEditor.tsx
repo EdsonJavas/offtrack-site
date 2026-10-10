@@ -32,6 +32,8 @@ interface ImageEditorProps {
   source: File | string;
   /** Nome base do arquivo gerado. */
   fileName: string;
+  /** Quantas fotos ainda vêm depois desta (fila de várias de uma vez). */
+  remaining?: number;
   onCancel: () => void;
   onSave: (file: File, previewUrl: string) => void;
 }
@@ -47,6 +49,7 @@ type Tab = "quadro" | "luz";
 export function ImageEditor({
   source,
   fileName,
+  remaining = 0,
   onCancel,
   onSave,
 }: ImageEditorProps) {
@@ -291,6 +294,11 @@ export function ImageEditor({
           </button>
           <p className={styles.headTitle}>
             Editar foto <span>{Math.round(zoom * 100)}%</span>
+            {remaining > 0 && (
+              <em className={styles.headQueue}>
+                +{remaining} na fila
+              </em>
+            )}
           </p>
           <button
             type="button"
@@ -298,7 +306,7 @@ export function ImageEditor({
             onClick={save}
             disabled={!image || saving}
           >
-            {saving ? "Salvando…" : "Concluir"}
+            {saving ? "Salvando…" : remaining > 0 ? "Próxima" : "Concluir"}
           </button>
         </header>
 

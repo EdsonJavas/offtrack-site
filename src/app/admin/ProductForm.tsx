@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useCallback, useRef, useState } from "react";
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
 import {
   CATEGORIES,
@@ -17,16 +23,23 @@ import { ImageEditor } from "./ImageEditor";
 import admin from "./admin.module.css";
 import styles from "./ProductForm.module.css";
 
-interface VariantDraft {
-  color: string;
-  hex: string;
-  /** URL já salva (ou vazio para foto nova). */
-  image: string;
-  /** O que aparece na prévia: a URL salva ou o arquivo escolhido/editado. */
+/** Uma foto da galeria: já salva (url) ou nova (file), sempre com prévia. */
+interface PhotoDraft {
+  url?: string;
+  file?: File;
   preview: string;
 }
 
-/** Tons mais comuns das peças; o dono também pode digitar um hex. */
+interface VariantDraft {
+  color: string;
+  hex: string;
+  /** Principal (a do card). */
+  main: PhotoDraft | null;
+  /** Extras da galeria. */
+  extras: PhotoDraft[];
+}
+
+/** Tons mais comuns das peças; o dono também pode escolher outro. */
 const PALETTE: [string, string][] = [
   ["Preto", "#141414"],
   ["Chumbo", "#3a3a3a"],
@@ -54,19 +67,32 @@ const BADGES: Array<[Product["badge"] | "", string]> = [
 const emptyVariant = (): VariantDraft => ({
   color: "",
   hex: "#141414",
-  image: "",
-  preview: "",
+  main: null,
+  extras: [],
 });
 
-interface EditorTarget {
-  index: number;
+/** Onde a foto editada vai parar. */
+type Slot = { kind: "main" } | { kind: "extra"; at: number | "end" };
+
+interface EditorJob {
+  variant: number;
+  slot: Slot;
   source: File | string;
   fileName: string;
+  /** Quantas ainda faltam depois desta (fila de várias fotos). */
+  remaining: number;
+}
+
+function fileList(files: File[]): FileList {
+  const dt = new DataTransfer();
+  files.forEach((f) => dt.items.add(f));
+  return dt.files;
 }
 
 /**
  * Ficha da peça: formulário em estações numeradas, com a prévia do card
- * (igual ao da loja) atualizando ao vivo ao lado.
+ * (igual ao da loja) atualizando ao vivo ao lado. Fotos passam pelo editor
+ * uma a uma, inclusive quando o dono escolhe várias de uma vez.
  */
 export function ProductForm({ product }: { product: Product | null }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(
@@ -93,19 +119,36 @@ export function ProductForm({ product }: { product: Product | null }) {
     product?.variants.map((v) => ({
       color: v.color,
       hex: v.hex,
-      image: v.image,
-      preview: v.image,
+      main: { url: v.image, preview: v.image },
+      extras: (v.images ?? []).map((url) => ({ url, preview: url })),
     })) ?? [emptyVariant()],
   );
   const [activeVariant, setActiveVariant] = useState(0);
-  const [editor, setEditor] = useState<EditorTarget | null>(null);
-  const fileInputs = useRef<(HTMLInputElement | null)[]>([]);
+  const [job, setJob] = useState<EditorJob | null>(null);
+  const queue = useRef<File[]>([]);
+
+  const pickers = useRef<(HTMLInputElement | null)[]>([]);
+  const mainHolders = useRef<(HTMLInputElement | null)[]>([]);
+  const extraHolders = useRef<(HTMLInputElement | null)[]>([]);
 
   const kind = CATEGORY_KIND[category];
   const measureKeys = MEASURES_BY_KIND[kind];
   const sizePresets =
     kind === "shorts" || kind === "pants" ? SIZES_BOTTOM : SIZES_TOP;
   const priceCents = parsePrice(price);
+
+  // Os campos de arquivo que vão no envio seguem o estado (DataTransfer).
+  useEffect(() => {
+    variants.forEach((v, i) => {
+      const main = mainHolders.current[i];
+      if (main) main.files = fileList(v.main?.file ? [v.main.file] : []);
+      const extra = extraHolders.current[i];
+      if (extra)
+        extra.files = fileList(
+          v.extras.flatMap((p) => (p.file ? [p.file] : [])),
+        );
+    });
+  }, [variants]);
 
   const updateVariant = (i: number, patch: Partial<VariantDraft>) =>
     setVariants((v) =>
@@ -123,53 +166,113 @@ export function ProductForm({ product }: { product: Product | null }) {
     setCustomSize("");
   };
 
-  /** Foto escolhida no seletor: abre o editor na hora. */
-  const onFileChosen = (i: number, file: File | undefined) => {
-    if (!file) return;
-    // Prévia com o arquivo cru desde já; se ele cancelar o editor, a foto fica assim.
-    updateVariant(i, { preview: URL.createObjectURL(file) });
-    setEditor({ index: i, source: file, fileName: file.name });
+  /** Abre o editor para a próxima foto da fila (ou fecha quando acabou). */
+  const startNext = (variant: number, slot: Slot) => {
+    const file = queue.current.shift();
+    if (!file) {
+      setJob(null);
+      return;
+    }
+    setJob({
+      variant,
+      slot,
+      source: file,
+      fileName: file.name,
+      remaining: queue.current.length,
+    });
   };
 
-  /** Editar o que já está no campo (arquivo novo) ou a foto salva (URL). */
-  const openEditor = (i: number) => {
-    const input = fileInputs.current[i];
-    const file = input?.files?.[0];
+  /** Fotos escolhidas: a primeira vira principal se não houver; as outras, extras. */
+  const onFilesChosen = (i: number, files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    queue.current = Array.from(files);
     const v = variants[i];
-    if (file) setEditor({ index: i, source: file, fileName: file.name });
-    else if (v.image)
-      setEditor({ index: i, source: v.image, fileName: `${v.color || "foto"}.jpg` });
+    startNext(i, v.main ? { kind: "extra", at: "end" } : { kind: "main" });
+    const picker = pickers.current[i];
+    if (picker) picker.value = "";
   };
 
-  const closeEditor = useCallback(() => setEditor(null), []);
+  /** "Trocar" a principal: uma foto só, direto no lugar dela. */
+  const replaceMain = (i: number, files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    queue.current = [files[0]];
+    startNext(i, { kind: "main" });
+  };
 
-  /** Foto editada entra no campo de arquivo (vai no envio) e na prévia. */
+  /** Reabrir no editor uma foto que já está na ficha. */
+  const reedit = (i: number, slot: Slot) => {
+    const v = variants[i];
+    const photo =
+      slot.kind === "main" ? v.main : v.extras[slot.at as number];
+    if (!photo) return;
+    const source = photo.file ?? photo.url;
+    if (!source) return;
+    queue.current = [];
+    setJob({
+      variant: i,
+      slot,
+      source,
+      fileName: photo.file?.name ?? `${v.color || "foto"}.jpg`,
+      remaining: 0,
+    });
+  };
+
+  const cancelEditor = useCallback(() => {
+    queue.current = [];
+    setJob(null);
+  }, []);
+
+  /** Foto concluída no editor: entra no lugar certo e chama a próxima da fila. */
   const onEdited = useCallback(
     (file: File, previewUrl: string) => {
-      if (!editor) return;
-      const input = fileInputs.current[editor.index];
-      if (input) {
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
-      }
-      setVariants((v) =>
-        v.map((item, j) =>
-          j === editor.index ? { ...item, preview: previewUrl } : item,
-        ),
+      if (!job) return;
+      const photo: PhotoDraft = { file, preview: previewUrl };
+      setVariants((list) =>
+        list.map((v, j) => {
+          if (j !== job.variant) return v;
+          if (job.slot.kind === "main") return { ...v, main: photo };
+          if (job.slot.at === "end") return { ...v, extras: [...v.extras, photo] };
+          const at = job.slot.at;
+          return { ...v, extras: v.extras.map((p, k) => (k === at ? photo : p)) };
+        }),
       );
-      setEditor(null);
+      // Depois da principal, o resto da fila vai para a galeria.
+      startNext(job.variant, { kind: "extra", at: "end" });
     },
-    [editor],
+    [job],
   );
+
+  const removeExtra = (i: number, at: number) =>
+    setVariants((list) =>
+      list.map((v, j) =>
+        j === i ? { ...v, extras: v.extras.filter((_, k) => k !== at) } : v,
+      ),
+    );
+
+  /** Uma extra vira a principal (a antiga principal vai para a galeria). */
+  const promote = (i: number, at: number) =>
+    setVariants((list) =>
+      list.map((v, j) => {
+        if (j !== i) return v;
+        const next = v.extras[at];
+        const rest = v.extras.filter((_, k) => k !== at);
+        return { ...v, main: next, extras: v.main ? [v.main, ...rest] : rest };
+      }),
+    );
 
   const removeVariant = (i: number) => {
     setVariants((list) => list.filter((_, j) => j !== i));
-    fileInputs.current.splice(i, 1);
+    pickers.current.splice(i, 1);
+    mainHolders.current.splice(i, 1);
+    extraHolders.current.splice(i, 1);
     setActiveVariant((a) => Math.max(0, Math.min(a, variants.length - 2)));
   };
 
   const preview = variants[Math.min(activeVariant, variants.length - 1)];
+  const photoCount = variants.reduce(
+    (n, v) => n + (v.main ? 1 : 0) + v.extras.length,
+    0,
+  );
 
   return (
     <form action={action} className={styles.form}>
@@ -325,8 +428,9 @@ export function ProductForm({ product }: { product: Product | null }) {
               <span className={styles.stationNumber}>02</span>
               <h2 className={styles.stationTitle}>Cores e fotos</h2>
               <p className={styles.stationHelp}>
-                Uma foto por cor, da peça em si. Ao escolher, o editor abre
-                para enquadrar no formato do card.
+                Escolha quantas fotos quiser de cada cor: cada uma passa pelo
+                editor, uma a uma. A primeira vira a foto do card; as outras
+                entram na galeria da etiqueta.
               </p>
             </header>
 
@@ -342,52 +446,142 @@ export function ProductForm({ product }: { product: Product | null }) {
                     {String(i + 1).padStart(2, "0")}
                   </span>
 
-                  {/* Foto: azulejo clicável que abre o seletor; depois, editar/trocar. */}
-                  <div className={styles.photo}>
-                    <input
-                      ref={(el) => {
-                        fileInputs.current[i] = el;
-                      }}
-                      type="file"
-                      name={`variant[${i}][file]`}
-                      accept="image/*"
-                      className={styles.fileInput}
-                      onChange={(e) => onFileChosen(i, e.target.files?.[0])}
-                    />
-                    <input type="hidden" name={`variant[${i}][image]`} value={v.image} />
-                    <input type="hidden" name={`variant[${i}][position]`} value="50% 50%" />
-                    {v.preview ? (
-                      <>
-                        {/* eslint-disable-next-line @next/next/no-img-element -- object URL local */}
-                        <img src={v.preview} alt="" className={styles.photoImg} />
-                        <div className={styles.photoActions}>
-                          <button
-                            type="button"
-                            className={styles.photoButton}
-                            onClick={() => openEditor(i)}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            type="button"
-                            className={styles.photoButton}
-                            onClick={() => fileInputs.current[i]?.click()}
-                          >
-                            Trocar
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        className={styles.photoEmpty}
-                        onClick={() => fileInputs.current[i]?.click()}
-                      >
-                        <span className={styles.photoPlus}>+</span>
-                        <span>Escolher foto</span>
-                        <span className={styles.photoHint}>JPG ou PNG · até 8 MB</span>
-                      </button>
+                  {/* Campos de envio (escondidos): principal, extras novas e extras mantidas. */}
+                  <input
+                    ref={(el) => {
+                      mainHolders.current[i] = el;
+                    }}
+                    type="file"
+                    name={`variant[${i}][file]`}
+                    className={styles.fileInput}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  />
+                  <input
+                    ref={(el) => {
+                      extraHolders.current[i] = el;
+                    }}
+                    type="file"
+                    name={`variant[${i}][extraFiles]`}
+                    multiple
+                    className={styles.fileInput}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  />
+                  <input
+                    type="hidden"
+                    name={`variant[${i}][image]`}
+                    value={v.main?.url ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name={`variant[${i}][images]`}
+                    value={JSON.stringify(
+                      v.extras.flatMap((p) => (p.url ? [p.url] : [])),
                     )}
+                  />
+                  <input type="hidden" name={`variant[${i}][position]`} value="50% 50%" />
+                  {/* Seletor de verdade: aceita várias. */}
+                  <input
+                    ref={(el) => {
+                      pickers.current[i] = el;
+                    }}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className={styles.fileInput}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    onChange={(e) => onFilesChosen(i, e.target.files)}
+                  />
+
+                  <div className={styles.photoCol}>
+                    {/* Principal */}
+                    <div className={styles.photo}>
+                      {v.main ? (
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element -- object URL local */}
+                          <img src={v.main.preview} alt="" className={styles.photoImg} />
+                          <span className={styles.photoTag}>Card</span>
+                          <div className={styles.photoActions}>
+                            <button
+                              type="button"
+                              className={styles.photoButton}
+                              onClick={() => reedit(i, { kind: "main" })}
+                            >
+                              Editar
+                            </button>
+                            <label className={styles.photoButton}>
+                              Trocar
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className={styles.fileInput}
+                                onChange={(e) => replaceMain(i, e.target.files)}
+                              />
+                            </label>
+                          </div>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          className={styles.photoEmpty}
+                          onClick={() => pickers.current[i]?.click()}
+                        >
+                          <span className={styles.photoPlus}>+</span>
+                          <span>Escolher fotos</span>
+                          <span className={styles.photoHint}>
+                            uma ou várias · JPG ou PNG · até 8 MB
+                          </span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Galeria */}
+                    <div className={styles.gallery}>
+                      {v.extras.map((p, k) => (
+                        <div key={p.preview} className={styles.galleryItem}>
+                          <button
+                            type="button"
+                            className={styles.galleryPhoto}
+                            onClick={() => reedit(i, { kind: "extra", at: k })}
+                            aria-label={`Editar foto ${k + 2}`}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element -- object URL local */}
+                            <img src={p.preview} alt="" />
+                          </button>
+                          <div className={styles.galleryActions}>
+                            <button
+                              type="button"
+                              onClick={() => promote(i, k)}
+                              aria-label="Usar como foto do card"
+                              title="Usar no card"
+                            >
+                              ★
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeExtra(i, k)}
+                              aria-label="Remover foto"
+                              title="Remover"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {v.main && (
+                        <button
+                          type="button"
+                          className={styles.galleryAdd}
+                          onClick={() => pickers.current[i]?.click()}
+                          aria-label="Adicionar fotos à galeria"
+                        >
+                          <span>+</span>
+                          <span>Mais fotos</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className={styles.variantFields}>
@@ -419,10 +613,7 @@ export function ProductForm({ product }: { product: Product | null }) {
                             className={`${styles.swatch} ${v.hex === hex ? styles.swatchOn : ""}`}
                             style={{ "--swatch": hex } as React.CSSProperties}
                             onClick={() =>
-                              updateVariant(i, {
-                                hex,
-                                color: v.color || label,
-                              })
+                              updateVariant(i, { hex, color: v.color || label })
                             }
                           />
                         ))}
@@ -583,9 +774,9 @@ export function ProductForm({ product }: { product: Product | null }) {
             </p>
             <div className={styles.card}>
               <div className={styles.cardMedia}>
-                {preview?.preview ? (
+                {preview?.main ? (
                   // eslint-disable-next-line @next/next/no-img-element -- object URL local
-                  <img src={preview.preview} alt="" className={styles.cardPhoto} />
+                  <img src={preview.main.preview} alt="" className={styles.cardPhoto} />
                 ) : (
                   <div className={styles.cardNoPhoto}>
                     <span>Sem foto</span>
@@ -636,6 +827,8 @@ export function ProductForm({ product }: { product: Product | null }) {
             </div>
             <p className={styles.previewNote}>
               {available ? "Vai aparecer na Seleção." : "Oculta: só você vê."}
+              {preview && preview.extras.length > 0 &&
+                ` · ${preview.extras.length + 1} fotos na etiqueta`}
             </p>
           </div>
         </aside>
@@ -647,7 +840,8 @@ export function ProductForm({ product }: { product: Product | null }) {
           <p className={styles.barError}>{state.error}</p>
         ) : (
           <p className={styles.barInfo}>
-            {variants.filter((v) => v.preview).length}/{variants.length} fotos ·{" "}
+            {photoCount} {photoCount === 1 ? "foto" : "fotos"} ·{" "}
+            {variants.length} {variants.length === 1 ? "cor" : "cores"} ·{" "}
             {sizes.length} tamanhos
           </p>
         )}
@@ -662,12 +856,13 @@ export function ProductForm({ product }: { product: Product | null }) {
         </div>
       </div>
 
-      {editor && (
+      {job && (
         <ImageEditor
-          key={`${editor.index}-${editor.fileName}`}
-          source={editor.source}
-          fileName={editor.fileName}
-          onCancel={closeEditor}
+          key={`${job.variant}-${job.fileName}-${job.remaining}`}
+          source={job.source}
+          fileName={job.fileName}
+          remaining={job.remaining}
+          onCancel={cancelEditor}
           onSave={onEdited}
         />
       )}

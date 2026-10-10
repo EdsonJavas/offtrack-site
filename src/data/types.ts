@@ -44,6 +44,8 @@ export interface ProductVariant {
   image: string;
   /** `object-position` para enquadrar a peça na foto. */
   position?: string;
+  /** Fotos extras da mesma cor (galeria da etiqueta), depois da principal. */
+  images?: string[];
 }
 
 export interface Product {

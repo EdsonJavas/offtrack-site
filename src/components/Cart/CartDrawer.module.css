@@ -109,6 +109,11 @@
   animation: tape 18s linear infinite;
 }
 
+/* Gaveta fechada: a fita não precisa rodar. */
+.root:not(.rootOpen) .tape span {
+  animation-play-state: paused;
+}
+
 @keyframes tape {
   to {
     transform: translateX(-100%);

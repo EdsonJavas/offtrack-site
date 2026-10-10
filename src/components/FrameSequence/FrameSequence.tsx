@@ -22,7 +22,15 @@ interface FrameSequenceProps {
   ref?: Ref<HTMLElement>;
 }
 
-const MAX_DPR = 2;
+/**
+ * Densidade máxima do canvas. Em telas de toque (celular) fica em 1,25: o
+ * desenho é feito de gradientes suaves, a diferença é invisível e o custo por
+ * frame cai para menos da metade (o iPhone redesenha a cada tick do scroll).
+ */
+const maxDpr = () =>
+  typeof window !== "undefined" && matchMedia("(pointer: coarse)").matches
+    ? 1.25
+    : 2;
 
 /**
  * Seção alta com um palco fixo (sticky). Conforme a página rola por ela,
@@ -71,7 +79,7 @@ export function FrameSequence({
     };
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      const dpr = Math.min(window.devicePixelRatio || 1, maxDpr());
       width = canvas.clientWidth;
       height = canvas.clientHeight;
       canvas.width = Math.round(width * dpr);

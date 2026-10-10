@@ -27,8 +27,11 @@ export function Journey() {
       const digits = gsap.utils.toArray<HTMLElement>(`.${styles.digit}`);
       const nodes = gsap.utils.toArray<HTMLElement>(`.${styles.node}`);
 
+      const rail = section.querySelector<HTMLElement>(`.${styles.rail}`);
       gsap.set(steps.slice(1), { autoAlpha: 0, y: 40 });
       gsap.set(digits.slice(1), { yPercent: 100 });
+      // A estrela anda por transform (compositor), não por `top` (layout a cada frame).
+      gsap.set(`.${styles.marker}`, { xPercent: -50, yPercent: -50, y: 0 });
 
       const timeline = gsap.timeline({
         defaults: { ease: "none" },
@@ -37,6 +40,7 @@ export function Journey() {
           start: "top top",
           end: "bottom bottom",
           scrub: 0.5,
+          invalidateOnRefresh: true,
         },
       });
 
@@ -48,7 +52,11 @@ export function Journey() {
           { scaleY: 1, duration: STEPS - 1 },
           0,
         )
-        .to(`.${styles.marker}`, { top: "100%", duration: STEPS - 1 }, 0);
+        .to(
+          `.${styles.marker}`,
+          { y: () => rail?.clientHeight ?? 0, duration: STEPS - 1 },
+          0,
+        );
 
       // Cada passo: o anterior sai, o novo entra, o dígito rola, o nó acende.
       for (let i = 1; i < STEPS; i++) {

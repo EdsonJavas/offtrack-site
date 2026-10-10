@@ -2,12 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import {
-  checkPassword,
-  createSession,
-  destroySession,
-  isAuthenticated,
-} from "@/lib/adminAuth";
+import { destroySession, isAuthenticated } from "@/lib/adminAuth";
 import {
   deleteExamples,
   deleteProduct,
@@ -30,15 +25,7 @@ export interface ActionState {
   ok?: boolean;
 }
 
-export async function loginAction(
-  _prev: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
-  const password = String(formData.get("password") ?? "");
-  if (!checkPassword(password)) return { error: "Senha incorreta." };
-  await createSession();
-  redirect("/admin");
-}
+// O login vive em app/admin/login/route.ts (fetch), para a animação de entrada.
 
 export async function logoutAction() {
   await destroySession();
@@ -98,7 +85,33 @@ export async function saveProductAction(
       image = await saveImage(file);
     }
     if (!image) return { error: `A cor "${color}" precisa de uma foto.` };
-    variants.push({ color, hex, image, position });
+
+    // Galeria: URLs mantidas + arquivos novos (já editados no painel).
+    let kept: string[] = [];
+    try {
+      const parsed: unknown = JSON.parse(
+        String(formData.get(`variant[${i}][images]`) || "[]"),
+      );
+      if (Array.isArray(parsed))
+        kept = parsed.filter((u): u is string => typeof u === "string" && !!u);
+    } catch {
+      kept = [];
+    }
+    const extras: string[] = [...kept];
+    for (const extra of formData.getAll(`variant[${i}][extraFiles]`)) {
+      if (!(extra instanceof File) || extra.size === 0) continue;
+      if (extra.size > 8 * 1024 * 1024)
+        return { error: `Uma foto extra de "${color}" passa de 8 MB.` };
+      extras.push(await saveImage(extra));
+    }
+
+    variants.push({
+      color,
+      hex,
+      image,
+      position,
+      ...(extras.length > 0 ? { images: extras } : {}),
+    });
   }
   if (variants.length === 0)
     return { error: "Cadastre ao menos uma cor com foto." };

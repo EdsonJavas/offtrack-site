@@ -11,6 +11,8 @@ interface PhotoViewerProps {
   name: string;
   kind: GarmentKind;
   variant: ProductVariant;
+  /** Foto a mostrar (galeria); sem isso, a principal da cor. */
+  image?: string;
   size: string;
   measurements?: Partial<Record<MeasureKey, number>>;
   showMeasures: boolean;
@@ -28,11 +30,14 @@ export function PhotoViewer({
   name,
   kind,
   variant,
+  image,
   size,
   measurements,
   showMeasures,
   bottomTone = "dark",
 }: PhotoViewerProps) {
+  const src = image ?? variant.image;
+  const isMain = src === variant.image;
   const [zoom, setZoom] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [light, setLight] = useState({ x: 50, y: 35 });
@@ -109,14 +114,15 @@ export function PhotoViewer({
         }}
       >
         <Image
-          key={variant.image}
-          src={variant.image}
+          key={src}
+          src={src}
           alt={`${name}, ${variant.color.toLowerCase()}`}
           fill
           sizes="(min-width: 900px) 60vw, 100vw"
           priority
           className={styles.photo}
-          style={{ objectPosition: variant.position ?? "50% 50%" }}
+          // Só a principal tem enquadramento definido; as extras já vêm recortadas.
+          style={{ objectPosition: isMain ? (variant.position ?? "50% 50%") : "50% 50%" }}
         />
       </div>
 

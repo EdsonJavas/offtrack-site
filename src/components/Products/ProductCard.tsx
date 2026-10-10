@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import type { Product, ProductVariant } from "@/data/types";
 import { formatPrice } from "@/lib/format";
+import { flyToCart } from "@/lib/flyToCart";
 import { useCart } from "@/components/Cart/CartProvider";
 import { useFavorite } from "@/hooks/useFavorite";
 import { Star } from "@/components/ui/Star";
@@ -21,6 +22,8 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
   const [size, setSize] = useState<string | null>(null);
   const [nudge, setNudge] = useState(false);
   const [favorite, toggleFavorite] = useFavorite(product.id);
+  const [added, setAdded] = useState(false);
+  const mediaRef = useRef<HTMLDivElement>(null);
   const cart = useCart();
 
   const add = () => {
@@ -30,14 +33,18 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
       return;
     }
     cart.add(product, variant, size);
+    // A própria foto voa até o carrinho; o botão confirma por um instante.
+    flyToCart(mediaRef.current?.querySelector("img"));
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
   };
 
   return (
     <article
-      className={styles.card}
+      className={`${styles.card} ${added ? styles.cardAdded : ""}`}
       style={{ "--i": index % 4 } as React.CSSProperties}
     >
-      <div className={styles.media}>
+      <div ref={mediaRef} className={styles.media}>
         <button
           type="button"
           className={styles.open}
@@ -124,10 +131,21 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
           </div>
         </div>
 
-        <button type="button" className={styles.add} onClick={add}>
-          <span>{size ? `Adicionar · ${size}` : "Escolha o tamanho"}</span>
+        <button
+          type="button"
+          className={`${styles.add} ${added ? styles.addDone : ""}`}
+          onClick={add}
+          aria-live="polite"
+        >
+          <span>
+            {added
+              ? "No carrinho"
+              : size
+                ? `Adicionar · ${size}`
+                : "Escolha o tamanho"}
+          </span>
           <span className={styles.addIcon} aria-hidden="true">
-            +
+            {added ? "✓" : "+"}
           </span>
         </button>
       </div>

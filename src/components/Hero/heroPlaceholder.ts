@@ -22,6 +22,35 @@ function starPath(ctx: CanvasRenderingContext2D, outer: number, inner: number) {
   ctx.closePath();
 }
 
+/**
+ * A vinheta não muda com o scroll: fica pronta num canvas auxiliar e é só
+ * carimbada por cima (um gradiente radial de tela inteira a menos por frame).
+ */
+let vignetteCache: { key: string; canvas: HTMLCanvasElement } | null = null;
+
+function vignetteFor(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  const dpr = ctx.getTransform().a || 1;
+  const key = `${width}x${height}@${dpr}`;
+  if (vignetteCache?.key === key) return vignetteCache.canvas;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
+  const vctx = canvas.getContext("2d")!;
+  vctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cx = width / 2;
+  const cy = height / 2;
+  const base = Math.min(width, height);
+  const vignette = vctx.createRadialGradient(cx, cy, base * 0.3, cx, cy, base * 0.95);
+  vignette.addColorStop(0, "rgba(10,10,10,0)");
+  vignette.addColorStop(1, "rgba(10,10,10,0.85)");
+  vctx.fillStyle = vignette;
+  vctx.fillRect(0, 0, width, height);
+
+  vignetteCache = { key, canvas };
+  return canvas;
+}
+
 export const drawHeroPlaceholder: DrawFrame = (
   ctx,
   progress,
@@ -78,17 +107,6 @@ export const drawHeroPlaceholder: DrawFrame = (
   ctx.fill();
   ctx.restore();
 
-  // Vinheta para o texto ler bem nas bordas.
-  const vignette = ctx.createRadialGradient(
-    cx,
-    cy,
-    base * 0.3,
-    cx,
-    cy,
-    base * 0.95,
-  );
-  vignette.addColorStop(0, "rgba(10,10,10,0)");
-  vignette.addColorStop(1, "rgba(10,10,10,0.85)");
-  ctx.fillStyle = vignette;
-  ctx.fillRect(0, 0, width, height);
+  // Vinheta para o texto ler bem nas bordas (pré-desenhada).
+  ctx.drawImage(vignetteFor(ctx, width, height), 0, 0, width, height);
 };

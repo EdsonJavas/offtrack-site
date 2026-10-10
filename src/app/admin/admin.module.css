@@ -185,11 +185,129 @@
 
 /* ---- Formulários ---- */
 
+.loginWrap {
+  position: relative;
+  display: grid;
+  place-items: start center;
+  min-height: 60vh;
+}
+
 .login {
   display: grid;
   gap: 16px;
   width: min(360px, 100%);
   margin: 10vh auto 0;
+  transition: opacity 350ms var(--ease-out), transform 500ms var(--ease-out);
+}
+
+/* Senha certa: o formulário recua e apaga. */
+.loginWelcome .login {
+  opacity: 0;
+  transform: scale(0.96) translateY(-8px);
+  pointer-events: none;
+}
+
+.welcome {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  overflow: hidden;
+}
+
+/* Carimbo bate na tela: grande e torto, assenta em -8° (como na etiqueta). */
+.welcomeStamp {
+  position: relative;
+  padding: 10px 22px 12px;
+  border: 3px solid var(--c-white);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(56px, 12vw, 96px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  animation: stampIn 650ms var(--ease-out) both;
+}
+
+.welcomeStar {
+  position: absolute;
+  top: -0.32em;
+  right: -0.3em;
+  width: 0.55em;
+  height: 0.55em;
+  animation: starIn 500ms var(--ease-out) 350ms both;
+}
+
+.welcomeText {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--c-gray-200);
+  animation: textIn 500ms var(--ease-out) 300ms both;
+}
+
+/* Fita branca varre a tela por baixo e some. */
+.welcomeTape {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  height: 10px;
+  background: repeating-linear-gradient(135deg, var(--c-white) 0 12px, transparent 12px 24px);
+  transform-origin: left;
+  animation: tapeIn 700ms var(--ease-out) 200ms both;
+}
+
+@keyframes stampIn {
+  0% {
+    opacity: 0;
+    transform: rotate(-16deg) scale(2.2);
+  }
+  55% {
+    opacity: 1;
+    transform: rotate(-6deg) scale(0.96);
+  }
+  100% {
+    transform: rotate(-8deg) scale(1);
+  }
+}
+
+@keyframes starIn {
+  from {
+    opacity: 0;
+    transform: scale(0) rotate(-90deg);
+  }
+}
+
+@keyframes textIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes tapeIn {
+  0% {
+    transform: scaleX(0);
+  }
+  60% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcomeStamp,
+  .welcomeStar,
+  .welcomeText,
+  .welcomeTape {
+    animation: none;
+  }
 }
 
 .form {
