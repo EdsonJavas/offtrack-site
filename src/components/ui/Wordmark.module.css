@@ -2,7 +2,7 @@
 .mark {
   position: relative;
   display: inline-block;
-  padding-right: 0.42em; /* espaço da estrela e do ® */
+  padding-right: 0.3em; /* espaço do ® e da estrela */
   font-family: var(--font-display);
   font-weight: 800;
   line-height: 1;
@@ -11,9 +11,9 @@
   white-space: nowrap;
 }
 
-/* Syne 800 é o máximo da família; o contorno engrossa o traço como no logo. */
+/* Syne 800 é o máximo da família; um contorno fino na própria cor engrossa um pouco o traço. */
 .text {
-  -webkit-text-stroke: 0.035em currentColor;
+  -webkit-text-stroke: 0.016em currentColor;
   paint-order: stroke fill;
 }
 
@@ -28,29 +28,20 @@
   paint-order: normal;
 }
 
+/* Sai do canto superior direito do K, subindo acima da linha das letras. */
 .star {
   position: absolute;
-  top: -0.2em;
-  right: 0.06em;
-  width: 0.34em;
-  height: 0.34em;
+  top: -0.42em;
+  right: -0.02em;
+  width: 0.36em;
+  height: 0.62em;
 }
 
-/* ® em 0.12em do pai: as medidas abaixo são relativas a esse tamanho
-   (1.7em aqui ≈ 0.2em do logotipo). */
+/* ® pequeno, rente à base, logo depois do K. */
 .reg {
   position: absolute;
-  right: 0.7em;
-  bottom: 0.1em;
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-  width: 1.7em;
-  height: 1.7em;
-  border: 0.14em solid currentColor;
-  border-radius: 50%;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 0.12em;
-  letter-spacing: 0;
+  right: 0.03em;
+  bottom: -0.02em;
+  width: 0.2em;
+  height: 0.2em;
 }
