@@ -280,10 +280,12 @@
   transform: rotate(-8deg);
 }
 
+/* Syne é larga (1,36em por letra): 9 letras × 40px cabem na coluna de ~600px. */
 .name {
   margin-top: 12px;
-  font-size: clamp(32px, 5.2vw, 56px);
+  font-size: clamp(26px, 3.2vw, 40px);
   line-height: 0.95;
+  overflow-wrap: anywhere;
 }
 
 .priceBlock {
