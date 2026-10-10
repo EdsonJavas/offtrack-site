@@ -32,7 +32,7 @@
 /* A estrela do logo saindo do canto do T, como no logotipo do hero. */
 .monogramStar {
   position: absolute;
-  top: 0.08em;
+  top: -0.08em;
   right: -0.14em;
   width: 0.9em;
   height: 0.9em;
