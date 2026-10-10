@@ -1,75 +1,115 @@
-/* Seção com margens reais: o conteúdo nunca encosta na borda da tela. */
+/* Catálogo: conteúdo perto das margens, título grande colado na grade. */
 .section {
   position: relative;
   z-index: 2;
-  padding: clamp(120px, 16vw, 200px) 0 clamp(96px, 12vw, 160px);
+  padding: clamp(96px, 12vw, 150px) var(--gutter) clamp(80px, 10vw, 120px);
   background: var(--c-black);
-}
-
-.inner {
-  width: min(1240px, 100% - 2 * var(--gutter));
-  margin-inline: auto;
 }
 
 .head {
   display: grid;
-  gap: 28px;
-  margin-bottom: clamp(40px, 6vw, 72px);
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 .title {
-  margin-top: 14px;
-  font-size: clamp(30px, 4.4vw, 60px);
-  max-width: 14ch;
+  font-size: clamp(40px, 7.2vw, 120px);
+  line-height: 0.9;
 }
 
-.aside {
-  display: grid;
-  gap: 28px;
-  align-content: end;
+.title span {
+  color: var(--c-silver);
 }
 
 .lead {
-  max-width: 42ch;
-  font-size: 15px;
+  max-width: 48ch;
+  font-size: 14px;
   line-height: 1.6;
+  color: var(--fg-muted);
+}
+
+/* Barra: filtros à esquerda, paginação à direita. */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 24px;
+  padding: 14px 0;
+  margin-bottom: 20px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--c-gray-200);
+  transition: border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out),
+    background var(--dur) var(--ease-out);
+}
+
+.filter:hover {
+  border-color: var(--line-strong);
+  color: var(--c-white);
+}
+
+.filterActive {
+  background: var(--c-white);
+  border-color: var(--c-white);
+  color: var(--c-black);
+}
+
+.filterCount {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0;
+  opacity: 0.6;
 }
 
 .controls {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  gap: 8px;
 }
 
 .counter {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  margin-right: 10px;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   color: var(--c-gray-200);
 }
 
 .counterSep {
-  width: 28px;
+  width: 22px;
   height: 1px;
   background: var(--line-strong);
-}
-
-.arrows {
-  display: flex;
-  gap: 8px;
 }
 
 .arrow {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
   transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out),
@@ -102,15 +142,15 @@
   flex: 0 0 100%;
   display: grid;
   grid-template-columns: repeat(var(--per-page), minmax(0, 1fr));
-  gap: 24px;
+  gap: 20px;
   list-style: none;
 }
 
 .pagination {
   display: flex;
-  gap: 8px;
-  width: min(360px, 100%);
-  margin: 40px auto 0;
+  gap: 6px;
+  width: min(280px, 100%);
+  margin: 28px auto 0;
 }
 
 .dot {
@@ -133,29 +173,19 @@
   background: var(--c-white);
 }
 
-@media (min-width: 700px) {
-  .page {
-    gap: 28px;
-  }
-}
-
 @media (min-width: 900px) {
   .head {
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 36ch);
     align-items: end;
-    gap: 64px;
+    gap: 40px;
   }
 
-  .aside {
-    justify-items: end;
+  .lead {
     text-align: right;
-  }
-
-  .controls {
-    width: 100%;
+    padding-bottom: 8px;
   }
 
   .page {
-    gap: 32px;
+    gap: 24px;
   }
 }
