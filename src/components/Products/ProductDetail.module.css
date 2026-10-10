@@ -570,8 +570,11 @@
   .panel {
     grid-template-rows: none;
     grid-template-columns: 1.1fr 44px minmax(0, 1fr);
-    width: min(1320px, 100%);
-    height: min(880px, 100%);
+    width: min(1320px, calc(100vw - 40px));
+    /* Altura presa à viewport, não ao grid: não depende de resolver porcentagem. */
+    height: calc(100vh - 40px);
+    height: calc(100dvh - 40px);
+    max-height: 880px;
     justify-self: center;
     align-self: center;
     border: 1px solid var(--line-strong);
