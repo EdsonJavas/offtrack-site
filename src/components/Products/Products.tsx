@@ -94,7 +94,6 @@ export function Products({ products }: { products: Product[] }) {
   const pages = Array.from({ length: pageCount }, (_, i) =>
     items.slice(i * perPage, i * perPage + perPage),
   );
-  const example = products.some((p) => p.example);
 
   return (
     <section id="selecao" className={styles.section}>
@@ -120,13 +119,6 @@ export function Products({ products }: { products: Product[] }) {
           <Star size={9} /> Entrega em {brand.city}, {brand.state}
         </li>
       </ul>
-
-      {example && (
-        <p className={styles.exampleNotice}>
-          Catálogo de exemplo: fotos e preços ilustrativos. As peças reais
-          entram quando forem cadastradas.
-        </p>
-      )}
 
       <div className={styles.bar}>
         <div className={styles.filters}>
