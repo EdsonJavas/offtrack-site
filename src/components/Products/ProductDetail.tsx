@@ -95,6 +95,7 @@ export function ProductDetail({ product, initialVariant, onClose }: ProductDetai
             name={product.name}
             kind={product.kind}
             variant={variant}
+            size={size}
             measurements={measures}
             showMeasures={showMeasures}
             bottomTone={tones?.bottom ?? "dark"}

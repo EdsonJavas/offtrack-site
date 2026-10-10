@@ -48,64 +48,6 @@
   pointer-events: none;
 }
 
-/* Esquema de medidas: entra por baixo. */
-.schema {
-  position: absolute;
-  right: 16px;
-  bottom: 48px;
-  width: min(46%, 300px);
-  padding: 12px 12px 10px;
-  background: rgba(10, 10, 10, 0.78);
-  border: 1px solid var(--line-strong);
-  backdrop-filter: blur(8px);
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
-  pointer-events: none;
-}
-
-.schemaOpen {
-  opacity: 1;
-  transform: none;
-}
-
-.silhouette,
-.measures {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 400 / 480;
-}
-
-.measures {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: calc(100% - 24px);
-}
-
-.measures line {
-  stroke: var(--c-white);
-  stroke-width: 1.4;
-}
-
-.measures text {
-  fill: var(--c-white);
-  font-family: var(--font-body);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  paint-order: stroke;
-  stroke: rgba(10, 10, 10, 0.8);
-  stroke-width: 3px;
-}
-
-.schemaNote {
-  margin-top: 6px;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: var(--fg-muted);
-}
-
 .hud {
   position: absolute;
   left: 16px;
@@ -136,10 +78,6 @@
 }
 
 @media (max-width: 699px) {
-  .schema {
-    width: 56%;
-  }
-
   .hudHint {
     display: none;
   }

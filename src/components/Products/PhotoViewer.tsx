@@ -2,15 +2,16 @@
 
 import { useRef, useState, type PointerEvent } from "react";
 import Image from "next/image";
-import { Garment } from "@/components/Garment/Garment";
-import { GEOMETRY, type GarmentKind } from "@/components/Garment/geometry";
-import { MEASURE_LABELS, type MeasureKey, type ProductVariant } from "@/data/mock/products";
+import type { GarmentKind } from "@/components/Garment/geometry";
+import type { MeasureKey, ProductVariant } from "@/data/mock/products";
+import { MeasureSchema } from "./MeasureSchema";
 import styles from "./PhotoViewer.module.css";
 
 interface PhotoViewerProps {
   name: string;
   kind: GarmentKind;
   variant: ProductVariant;
+  size: string;
   measurements?: Partial<Record<MeasureKey, number>>;
   showMeasures: boolean;
   /** Luminosidade da base da foto: define a cor do texto sobreposto. */
@@ -27,6 +28,7 @@ export function PhotoViewer({
   name,
   kind,
   variant,
+  size,
   measurements,
   showMeasures,
   bottomTone = "dark",
@@ -53,7 +55,13 @@ export function PhotoViewer({
       });
     }
     if (!drag.current) return;
-    setPan(clampPan(drag.current.pan.x + e.clientX - drag.current.x, drag.current.pan.y + e.clientY - drag.current.y, stage));
+    setPan(
+      clampPan(
+        drag.current.pan.x + e.clientX - drag.current.x,
+        drag.current.pan.y + e.clientY - drag.current.y,
+        stage,
+      ),
+    );
   };
 
   const onPointerUp = () => {
@@ -73,8 +81,6 @@ export function PhotoViewer({
     }
     setZoom((z) => !z);
   };
-
-  const geometry = GEOMETRY[kind];
 
   return (
     <div
@@ -104,49 +110,15 @@ export function PhotoViewer({
         />
       </div>
 
-      <div className={styles.grain} aria-hidden="true" />
       <div className={styles.light} aria-hidden="true" />
 
-      {/* Esquema de medidas: silhueta da peça com as linhas do tamanho escolhido. */}
-      <div className={`${styles.schema} ${showMeasures ? styles.schemaOpen : ""}`} aria-hidden={!showMeasures}>
-        <Garment kind={kind} color={variant.hex} view="front" className={styles.silhouette} />
-        {measurements && (
-          <svg viewBox="0 0 400 480" className={styles.measures}>
-            {geometry.measures.map((m) => {
-              const value = measurements[m.key];
-              if (value === undefined) return null;
-              const vertical = m.from[0] === m.to[0];
-              const mx = vertical ? m.from[0] - 10 : (m.from[0] + m.to[0]) / 2 + m.label[0];
-              const my = (m.from[1] + m.to[1]) / 2 + m.label[1];
-              return (
-                <g key={m.key}>
-                  <line x1={m.from[0]} y1={m.from[1]} x2={m.to[0]} y2={m.to[1]} />
-                  <line
-                    x1={m.from[0] - (vertical ? 6 : 0)}
-                    y1={m.from[1] - (vertical ? 0 : 6)}
-                    x2={m.from[0] + (vertical ? 6 : 0)}
-                    y2={m.from[1] + (vertical ? 0 : 6)}
-                  />
-                  <line
-                    x1={m.to[0] - (vertical ? 6 : 0)}
-                    y1={m.to[1] - (vertical ? 0 : 6)}
-                    x2={m.to[0] + (vertical ? 6 : 0)}
-                    y2={m.to[1] + (vertical ? 0 : 6)}
-                  />
-                  <text x={mx} y={my} textAnchor={vertical ? "end" : "middle"}>
-                    {MEASURE_LABELS[m.key]} · {value} cm
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        )}
-        <p className={styles.schemaNote}>Medidas aproximadas da peça, em cm.</p>
-      </div>
+      <MeasureSchema kind={kind} size={size} measurements={measurements} open={showMeasures} />
 
       <div className={styles.hud} aria-hidden="true">
         <span>{variant.color}</span>
-        <span className={styles.hudHint}>{zoom ? "Arraste para mover · toque duplo para sair" : "Toque duplo para zoom"}</span>
+        <span className={styles.hudHint}>
+          {zoom ? "Arraste para mover · toque duplo para sair" : "Toque duplo para zoom"}
+        </span>
       </div>
     </div>
   );
