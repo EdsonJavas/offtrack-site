@@ -5,7 +5,8 @@
   overflow: hidden;
   background: var(--c-gray-800);
   cursor: zoom-in;
-  touch-action: none;
+  /* Sem zoom, o dedo rola a página; com zoom, arrasta a foto. */
+  touch-action: pan-y;
   user-select: none;
   --lx: 50%;
   --ly: 35%;
@@ -13,6 +14,7 @@
 
 .zoomed {
   cursor: grab;
+  touch-action: none;
 }
 
 .zoomed:active {

@@ -95,6 +95,8 @@ export function CartDrawer() {
             ))}
           </div>
 
+          {/* Lista + rodapé num só scroll: o plano B da mensagem pode ficar alto no celular. */}
+          <div className={styles.body} data-lenis-prevent>
           {cart.items.length === 0 ? (
             <div className={styles.empty}>
               <p className={styles.emptyTitle}>Nada aqui ainda.</p>
@@ -103,7 +105,7 @@ export function CartDrawer() {
               </p>
             </div>
           ) : (
-            <ul className={styles.list} data-lenis-prevent>
+            <ul className={styles.list}>
               {cart.items.map((item, i) => (
                 <li
                   key={item.key}
@@ -229,6 +231,7 @@ export function CartDrawer() {
                 </button>
               ))}
           </footer>
+          </div>
         </aside>
       </div>
     </>,

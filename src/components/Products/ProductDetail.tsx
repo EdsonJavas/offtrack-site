@@ -113,7 +113,12 @@ export function ProductDetail({
         </span>
       </div>
 
-      <div ref={panelRef} className={styles.panel} tabIndex={-1}>
+      <div
+        ref={panelRef}
+        className={styles.panel}
+        tabIndex={-1}
+        data-lenis-prevent
+      >
         <div
           className={styles.viewer}
           data-top={tones?.top ?? "dark"}
@@ -182,12 +187,15 @@ export function ProductDetail({
           )}
         </div>
 
-        {/* Faixa vertical entre a foto e a etiqueta. */}
+        {/* Faixa entre a foto e a etiqueta: vertical no desktop, fita horizontal no celular
+            (o segundo span só serve para o loop da fita). */}
         <div className={styles.strip} aria-hidden="true">
-          <span>
-            {brand.name} ✦ Sob encomenda ✦ Pix 80 + 20 ✦ {brand.city},{" "}
-            {brand.state} ✦ {brand.slogan} ✦&nbsp;
-          </span>
+          {[0, 1].map((i) => (
+            <span key={i}>
+              {brand.name} ✦ Sob encomenda ✦ Pix 80 + 20 ✦ {brand.city},{" "}
+              {brand.state} ✦ {brand.slogan} ✦&nbsp;
+            </span>
+          ))}
         </div>
 
         {/* Etiqueta pendurada: informações da peça como numa tag de roupa. */}
