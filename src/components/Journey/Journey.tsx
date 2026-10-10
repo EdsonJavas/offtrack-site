@@ -32,12 +32,22 @@ export function Journey() {
 
       const timeline = gsap.timeline({
         defaults: { ease: "none" },
-        scrollTrigger: { trigger: section, start: "top top", end: "bottom bottom", scrub: 0.5 },
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.5,
+        },
       });
 
       // Linha preenche e a estrela desce do primeiro ao último nó.
       timeline
-        .fromTo(`.${styles.fill}`, { scaleY: 0 }, { scaleY: 1, duration: STEPS - 1 }, 0)
+        .fromTo(
+          `.${styles.fill}`,
+          { scaleY: 0 },
+          { scaleY: 1, duration: STEPS - 1 },
+          0,
+        )
         .to(`.${styles.marker}`, { top: "100%", duration: STEPS - 1 }, 0);
 
       // Cada passo: o anterior sai, o novo entra, o dígito rola, o nó acende.
@@ -56,7 +66,12 @@ export function Journey() {
   }, [reducedMotion]);
 
   return (
-    <ScrollStage ref={sectionRef} id="como-funciona" scrollLength={STEPS} className={styles.section}>
+    <ScrollStage
+      ref={sectionRef}
+      id="como-funciona"
+      scrollLength={STEPS}
+      className={styles.section}
+    >
       <div className={styles.stage}>
         <header className={styles.head}>
           <p className="eyebrow">Como funciona</p>
@@ -74,7 +89,9 @@ export function Journey() {
               </span>
             ))}
           </span>
-          <span className={styles.counterTotal}>/ {String(STEPS).padStart(2, "0")}</span>
+          <span className={styles.counterTotal}>
+            / {String(STEPS).padStart(2, "0")}
+          </span>
         </div>
 
         {/* Linha com nós e a estrela viajando */}
@@ -82,7 +99,11 @@ export function Journey() {
           <span className={styles.track} />
           <span className={styles.fill} />
           {journey.map((_, i) => (
-            <span key={i} className={styles.node} style={{ top: `${(i / (STEPS - 1)) * 100}%` }} />
+            <span
+              key={i}
+              className={styles.node}
+              style={{ top: `${(i / (STEPS - 1)) * 100}%` }}
+            />
           ))}
           <span className={styles.marker}>
             <Star size={22} />

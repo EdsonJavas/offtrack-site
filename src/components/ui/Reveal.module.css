@@ -1,0 +1,13 @@
+/* Escondido só quando há JS para revelar; sem JS (ou sem suporte à media
+   query `scripting`), o conteúdo aparece normalmente. */
+@media (scripting: enabled) {
+  .reveal:not(.shown) {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal:not(.shown) {
+    opacity: 1;
+  }
+}

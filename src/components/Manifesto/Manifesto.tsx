@@ -37,27 +37,34 @@ export function Manifesto() {
       });
 
       // Carimbos batem na tela conforme o painel deles aparece.
-      gsap.utils.toArray<HTMLElement>(`.${styles.stamp}`).forEach((stamp, i) => {
-        gsap.from(stamp, {
-          scale: 1.6,
-          rotate: -12 + i * 8,
-          autoAlpha: 0,
-          ease: "power3.out",
-          duration: 0.6,
-          scrollTrigger: {
-            trigger: section,
-            start: `${52 + i * 6}% bottom`,
-            toggleActions: "play none none reverse",
-          },
+      gsap.utils
+        .toArray<HTMLElement>(`.${styles.stamp}`)
+        .forEach((stamp, i) => {
+          gsap.from(stamp, {
+            scale: 1.6,
+            rotate: -12 + i * 8,
+            autoAlpha: 0,
+            ease: "power3.out",
+            duration: 0.6,
+            scrollTrigger: {
+              trigger: section,
+              start: `${52 + i * 6}% bottom`,
+              toggleActions: "play none none reverse",
+            },
+          });
         });
-      });
     }, section);
 
     return () => ctx.revert();
   }, [reducedMotion]);
 
   return (
-    <ScrollStage ref={sectionRef} id="marca" scrollLength={4} className={styles.section}>
+    <ScrollStage
+      ref={sectionRef}
+      id="marca"
+      scrollLength={4}
+      className={styles.section}
+    >
       <div ref={trackRef} className={styles.track}>
         <article className={`${styles.panel} ${styles.panelOne}`}>
           <p className="eyebrow">Manifesto</p>
@@ -73,8 +80,8 @@ export function Manifesto() {
             É uma outra visão <span>de streetwear.</span>
           </h2>
           <p className={styles.lead}>
-            Roupa é extensão da personalidade de quem veste. Seleção alinhada ao estilo urbano,
-            identidade visual marcante e atendimento próximo.
+            Roupa é extensão da personalidade de quem veste. Seleção alinhada ao
+            estilo urbano, identidade visual marcante e atendimento próximo.
           </p>
         </article>
 

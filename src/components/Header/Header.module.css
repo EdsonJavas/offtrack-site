@@ -116,6 +116,115 @@
   color: var(--c-black);
 }
 
+/* ---- Menu do celular ---- */
+
+.burger {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: 1px solid currentColor;
+}
+
+.burger span {
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  height: 1.5px;
+  background: currentColor;
+}
+
+.burger span:first-child {
+  top: 15px;
+}
+
+.burger span:last-child {
+  bottom: 15px;
+}
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 18px var(--gutter) 28px;
+  background: var(--c-black);
+  color: var(--c-white);
+  mix-blend-mode: normal;
+  animation: menuIn 300ms var(--ease-out);
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.menuClose {
+  position: relative;
+  justify-self: end;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--c-white);
+}
+
+.menuClose span {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 16px;
+  height: 1.5px;
+  background: var(--c-white);
+}
+
+.menuClose span:first-child {
+  transform: rotate(45deg);
+}
+
+.menuClose span:last-child {
+  transform: rotate(-45deg);
+}
+
+.menuNav {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+}
+
+.menuLink {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(28px, 8vw, 40px);
+  text-transform: uppercase;
+}
+
+.menuIndex {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--fg-muted);
+}
+
+.menuFoot {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--c-gray-200);
+}
+
+.menuFoot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 @media (min-width: 700px) {
   .instagram {
     display: inline-flex;
@@ -129,6 +238,11 @@
 
   .cartLabel {
     display: inline;
+  }
+
+  .burger,
+  .menu {
+    display: none;
   }
 }
 

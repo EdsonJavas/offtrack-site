@@ -137,6 +137,16 @@
   color: var(--fg-muted);
 }
 
+.legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.legal a:hover {
+  color: var(--c-white);
+}
+
 @media (min-width: 900px) {
   .top {
     grid-template-columns: 1.4fr 1fr;
@@ -148,7 +158,7 @@
   }
 
   .foot {
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: auto 1fr auto;
     gap: 32px;
     align-items: center;
   }

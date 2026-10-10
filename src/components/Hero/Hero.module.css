@@ -37,9 +37,39 @@
 .sub {
   margin-top: 12px;
   font-size: 11px;
-  letter-spacing: 0.6em;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--c-gray-200);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Atalho para quem veio pelo link da bio: direto para as peças. */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding: 14px 22px;
+  border: 1px solid var(--c-white);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  pointer-events: auto;
+  transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+.cta:hover {
+  background: var(--c-white);
+  color: var(--c-black);
 }
 
 .slogan {
@@ -93,8 +123,18 @@
   opacity: 0;
 }
 
-/* Sem animação (prefers-reduced-motion): mostra o slogan parado. */
+/* Sem animação (prefers-reduced-motion): wordmark em cima, slogan embaixo, tudo parado. */
+.static {
+  grid-template-rows: auto auto;
+  align-content: center;
+  gap: 32px;
+}
+
 .static .intro,
+.static .slogan {
+  grid-area: auto;
+}
+
 .static .hint {
   display: none;
 }

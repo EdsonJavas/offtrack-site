@@ -39,7 +39,17 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       timer = window.setTimeout(refresh, 150);
     };
 
-    const observer = new ResizeObserver(debounced);
+    // Barra de endereço do celular aparecendo/sumindo não é motivo para recalcular.
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
+    // Só mudanças grandes de altura (abrir um FAQ não conta).
+    let lastHeight = document.body.scrollHeight;
+    const observer = new ResizeObserver(() => {
+      const height = document.body.scrollHeight;
+      if (Math.abs(height - lastHeight) < 80) return;
+      lastHeight = height;
+      debounced();
+    });
     observer.observe(document.body);
     document.fonts?.ready.then(debounced);
     window.addEventListener("load", debounced);

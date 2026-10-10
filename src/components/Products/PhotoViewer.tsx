@@ -3,7 +3,7 @@
 import { useRef, useState, type PointerEvent } from "react";
 import Image from "next/image";
 import type { GarmentKind } from "@/components/Garment/geometry";
-import type { MeasureKey, ProductVariant } from "@/data/mock/products";
+import type { MeasureKey, ProductVariant } from "@/data/types";
 import { MeasureSchema } from "./MeasureSchema";
 import styles from "./PhotoViewer.module.css";
 
@@ -37,7 +37,11 @@ export function PhotoViewer({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [light, setLight] = useState({ x: 50, y: 35 });
   const stageRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ x: number; y: number; pan: { x: number; y: number } } | null>(null);
+  const drag = useRef<{
+    x: number;
+    y: number;
+    pan: { x: number; y: number };
+  } | null>(null);
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     if (!zoom) return;
@@ -68,13 +72,13 @@ export function PhotoViewer({
     drag.current = null;
   };
 
-  const toggleZoom = (e: React.MouseEvent<HTMLDivElement>) => {
+  /** Zoom no ponto clicado (toque duplo) ou no centro (botão de lupa). */
+  const toggleZoom = (point?: { clientX: number; clientY: number }) => {
     const stage = stageRef.current;
-    if (!zoom && stage) {
-      // Centraliza o zoom no ponto clicado.
+    if (!zoom && stage && point) {
       const rect = stage.getBoundingClientRect();
-      const dx = rect.width / 2 - (e.clientX - rect.left);
-      const dy = rect.height / 2 - (e.clientY - rect.top);
+      const dx = rect.width / 2 - (point.clientX - rect.left);
+      const dy = rect.height / 2 - (point.clientY - rect.top);
       setPan(clampPan(dx * (ZOOM - 1), dy * (ZOOM - 1), stage));
     } else {
       setPan({ x: 0, y: 0 });
@@ -87,16 +91,22 @@ export function PhotoViewer({
       ref={stageRef}
       className={`${styles.stage} ${zoom ? styles.zoomed : ""}`}
       data-bottom={bottomTone}
-      style={{ "--lx": `${light.x}%`, "--ly": `${light.y}%` } as React.CSSProperties}
+      style={
+        { "--lx": `${light.x}%`, "--ly": `${light.y}%` } as React.CSSProperties
+      }
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
-      onDoubleClick={toggleZoom}
+      onDoubleClick={(e) => toggleZoom(e)}
     >
       <div
         className={styles.photoWrap}
-        style={{ transform: zoom ? `translate(${pan.x}px, ${pan.y}px) scale(${ZOOM})` : undefined }}
+        style={{
+          transform: zoom
+            ? `translate(${pan.x}px, ${pan.y}px) scale(${ZOOM})`
+            : undefined,
+        }}
       >
         <Image
           key={variant.image}
@@ -112,13 +122,27 @@ export function PhotoViewer({
 
       <div className={styles.light} aria-hidden="true" />
 
-      <MeasureSchema kind={kind} size={size} measurements={measurements} open={showMeasures} />
+      <MeasureSchema
+        kind={kind}
+        size={size}
+        measurements={measurements}
+        open={showMeasures}
+      />
 
-      <div className={styles.hud} aria-hidden="true">
-        <span>{variant.color}</span>
-        <span className={styles.hudHint}>
-          {zoom ? "Arraste para mover · toque duplo para sair" : "Toque duplo para zoom"}
-        </span>
+      <div className={styles.hud}>
+        <span aria-hidden="true">{variant.color}</span>
+        <button
+          type="button"
+          className={styles.zoomButton}
+          onClick={() => toggleZoom()}
+          aria-pressed={zoom}
+          aria-label={zoom ? "Sair do zoom" : "Aproximar a foto"}
+        >
+          <span className={styles.zoomIcon} aria-hidden="true">
+            {zoom ? "−" : "+"}
+          </span>
+          {zoom ? "Sair do zoom" : "Zoom"}
+        </button>
       </div>
     </div>
   );

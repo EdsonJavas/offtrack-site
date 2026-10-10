@@ -36,10 +36,17 @@ export function useImageTone(src: string): ImageTones | null {
       ctx.drawImage(img, 0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
 
       const band = (fromRow: number, toRow: number): Tone => {
-        const { data } = ctx.getImageData(0, fromRow, SAMPLE_SIZE, toRow - fromRow);
+        const { data } = ctx.getImageData(
+          0,
+          fromRow,
+          SAMPLE_SIZE,
+          toRow - fromRow,
+        );
         let sum = 0;
         for (let i = 0; i < data.length; i += 4) {
-          sum += (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+          sum +=
+            (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) /
+            255;
         }
         return sum / (data.length / 4) > LIGHT_THRESHOLD ? "light" : "dark";
       };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { brand } from "@/data/brand";
@@ -29,7 +30,12 @@ export function Outro() {
         {
           clipPath: "inset(0% 0 0 0)",
           ease: "none",
-          scrollTrigger: { trigger: section, start: "top top", end: "bottom bottom", scrub: 0.4 },
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.4,
+          },
         },
       );
     }, section);
@@ -38,7 +44,12 @@ export function Outro() {
   }, [reducedMotion]);
 
   return (
-    <ScrollStage ref={sectionRef} id="contato" scrollLength={2} className={styles.section}>
+    <ScrollStage
+      ref={sectionRef}
+      id="contato"
+      scrollLength={2}
+      className={styles.section}
+    >
       <div className={styles.stage}>
         <div className={styles.top}>
           <div>
@@ -49,11 +60,20 @@ export function Outro() {
           </div>
 
           <div className={styles.actions}>
-            <a href={brand.instagram.direct} target="_blank" rel="noopener noreferrer" className={styles.primary}>
+            <a
+              href={brand.instagram.direct}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.primary}
+            >
               <Star size={11} />
               Direct no Instagram
             </a>
-            <button type="button" className={styles.secondary} onClick={cart.open}>
+            <button
+              type="button"
+              className={styles.secondary}
+              onClick={cart.open}
+            >
               Carrinho <span>{String(cart.count).padStart(2, "0")}</span>
             </button>
             <p className={styles.handle}>{brand.instagram.handle}</p>
@@ -71,11 +91,36 @@ export function Outro() {
             {brand.slogan}
           </p>
           <p className={styles.meta}>
-            {brand.city}, {brand.state} · © {brand.foundedYear} {brand.name}
+            {[
+              brand.legal.entity,
+              brand.legal.document,
+              brand.legal.address ?? `${brand.city}, ${brand.state}`,
+              `© ${brand.foundedYear} ${brand.name}`,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </p>
-          <a href={brand.instagram.url} target="_blank" rel="noopener noreferrer" className={styles.meta}>
-            {brand.instagram.handle}
-          </a>
+          <nav className={styles.legal} aria-label="Legal">
+            <Link href="/termos" className={styles.meta}>
+              Termos e trocas
+            </Link>
+            <Link href="/privacidade" className={styles.meta}>
+              Privacidade
+            </Link>
+            {brand.email && (
+              <a href={`mailto:${brand.email}`} className={styles.meta}>
+                {brand.email}
+              </a>
+            )}
+            <a
+              href={brand.instagram.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.meta}
+            >
+              {brand.instagram.handle}
+            </a>
+          </nav>
         </footer>
       </div>
     </ScrollStage>

@@ -64,8 +64,24 @@
   transition: color var(--dur) var(--ease-out);
 }
 
-.hudHint {
-  color: var(--fg-muted);
+.zoomButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid currentColor;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: inherit;
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+}
+
+.zoomIcon {
+  font-size: 14px;
+  line-height: 1;
 }
 
 /* Base da foto clara: texto escuro. */
@@ -73,12 +89,7 @@
   color: var(--c-black);
 }
 
-.stage[data-bottom="light"] .hudHint {
-  color: var(--c-gray-600);
+.stage[data-bottom="light"] .zoomButton {
+  background: rgba(244, 244, 242, 0.6);
 }
 
-@media (max-width: 699px) {
-  .hudHint {
-    display: none;
-  }
-}

@@ -17,10 +17,21 @@ export const brand = {
     /** Abre a conversa no Direct (ig.me não aceita texto pronto: a mensagem vai copiada). */
     direct: "https://ig.me/m/_offtrack.wear",
   },
-  /** A confirmar pelo dono. Enquanto undefined, o botão de WhatsApp não aparece. */
+  /** A confirmar pelo dono. Enquanto undefined, o site usa só o Direct. */
   whatsapp: undefined as { number: string; url: string } | undefined,
-  whatsappMessage:
-    "Fala, OFFTRACK! Tudo bem? Vim pelo site e gostaria de saber mais sobre as peças disponíveis e como funciona a encomenda.",
   /** A confirmar pelo dono. */
   email: undefined as string | undefined,
+  /**
+   * Identificação legal (CDC / Decreto 7.962): obrigatória para vender pela internet.
+   * A confirmar pelo dono: razão social ou nome do responsável, CNPJ ou CPF, endereço.
+   */
+  legal: {
+    entity: undefined as string | undefined,
+    document: undefined as string | undefined,
+    address: undefined as string | undefined,
+  },
 } as const;
+
+/** URL pública do site (defina NEXT_PUBLIC_SITE_URL na Vercel). */
+export const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://offtrack-site.vercel.app";

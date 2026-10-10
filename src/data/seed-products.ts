@@ -1,52 +1,13 @@
 /**
- * MOCK — dados de exemplo para desenvolvimento.
- * Nomes, preços, cores, tamanhos, medidas e descrições são fictícios e NÃO podem ir ao ar.
- * As fotos são de banco de imagens (Unsplash, licença livre), escolhidas por mostrarem a
- * peça em si; não são as peças da loja. Substituir pelas fotos reais (frente e detalhe,
- * por cor) quando o dono enviar.
- * Categorias confirmadas pelo dono: camiseta, oversized, polo, bermuda. Calça entrou a
- * pedido do usuário como exemplo.
+ * CATÁLOGO DE EXEMPLO. Usado só enquanto o dono não cadastra nenhuma peça no painel.
+ * Nomes, preços, medidas e descrições são fictícios; as fotos são de banco de imagens
+ * (Unsplash) e não são as peças da loja. Cada item carrega `example: true`, e o site
+ * mostra o selo "EXEMPLO" por cima. Nada daqui deve ser vendido.
  */
-import type { GarmentKind } from "@/components/Garment/geometry";
+import type { Product } from "./types";
 
-export type ProductCategory = "Camiseta" | "Oversized" | "Polo" | "Bermuda" | "Calça";
-
-export type MeasureKey = "chest" | "length" | "sleeve" | "waist";
-
-export const MEASURE_LABELS: Record<MeasureKey, string> = {
-  chest: "Largura do peito",
-  length: "Comprimento",
-  sleeve: "Manga",
-  waist: "Cintura",
-};
-
-export interface ProductVariant {
-  color: string;
-  hex: string;
-  image: string;
-  /** `object-position` para enquadrar a peça na foto. */
-  position?: string;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  category: ProductCategory;
-  /** Silhueta usada no esquema de medidas. */
-  kind: GarmentKind;
-  /** Em reais. Mock: o dono ainda não precificou. */
-  price: number;
-  variants: ProductVariant[];
-  sizes: string[];
-  /** Medidas em cm, por tamanho. */
-  measurements: Record<string, Partial<Record<MeasureKey, number>>>;
-  fit: string;
-  fabric: string;
-  description: string;
-  badge?: "Novo" | "Destaque";
-}
-
-const unsplash = (id: string) => `https://images.unsplash.com/${id}?w=1200&q=80&auto=format&fit=crop`;
+const unsplash = (id: string) =>
+  `https://images.unsplash.com/${id}?w=1200&q=80&auto=format&fit=crop`;
 
 const PHOTOS = {
   teeWhiteConcrete: unsplash("photo-1581655353564-df123a1eb820"),
@@ -92,13 +53,19 @@ const pantsSizes = {
   "46": { waist: 48, length: 108 },
 };
 
-export const mockProducts: Product[] = [
+const base = {
+  available: true,
+  example: true,
+  updatedAt: "2026-10-10T00:00:00.000Z",
+} as const;
+
+export const seedProducts: Product[] = [
   {
-    id: "mock-01",
+    ...base,
+    id: "exemplo-01",
     name: "Tee Essential",
     category: "Camiseta",
-    kind: "tee",
-    price: 89,
+    priceCents: 8990,
     variants: [
       { ...WHITE, image: PHOTOS.teeWhiteConcrete, position: "50% 60%" },
       { ...BLACK, image: PHOTOS.teesBlackHanging, position: "50% 50%" },
@@ -107,15 +74,16 @@ export const mockProducts: Product[] = [
     measurements: teeSizes,
     fit: "Regular",
     fabric: "Algodão 100%, 180 g/m²",
-    description: "A camiseta base do guarda-roupa. Gola reforçada e caimento reto.",
+    description:
+      "A camiseta base do guarda-roupa. Gola reforçada e caimento reto.",
     badge: "Destaque",
   },
   {
-    id: "mock-02",
+    ...base,
+    id: "exemplo-02",
     name: "Oversized Concrete",
     category: "Oversized",
-    kind: "oversized",
-    price: 129,
+    priceCents: 12990,
     variants: [
       { ...OFFWHITE, image: PHOTOS.teeOffwhiteWall, position: "50% 45%" },
       { ...BLACK, image: PHOTOS.teeBlackBackPrint, position: "50% 45%" },
@@ -124,29 +92,31 @@ export const mockProducts: Product[] = [
     measurements: oversizedSizes,
     fit: "Oversized, ombro caído",
     fabric: "Algodão 100%, 240 g/m²",
-    description: "Modelagem ampla e tecido pesado. Feita pra cair solta sem perder a forma.",
+    description:
+      "Modelagem ampla e tecido pesado. Feita pra cair solta sem perder a forma.",
     badge: "Novo",
   },
   {
-    id: "mock-03",
+    ...base,
+    id: "exemplo-03",
     name: "Cargo Track",
     category: "Calça",
-    kind: "pants",
-    price: 219,
+    priceCents: 21900,
     variants: [{ ...OLIVE, image: PHOTOS.cargoOlive, position: "50% 88%" }],
     sizes: ["38", "40", "42", "44"],
     measurements: pantsSizes,
     fit: "Relaxed, barra com elástico",
     fabric: "Sarja de algodão",
-    description: "Calça cargo de pernas largas, bolsos laterais e barra ajustada. A peça street da seleção.",
+    description:
+      "Calça cargo de pernas largas, bolsos laterais e barra ajustada.",
     badge: "Destaque",
   },
   {
-    id: "mock-04",
+    ...base,
+    id: "exemplo-04",
     name: "Polo Line",
     category: "Polo",
-    kind: "polo",
-    price: 149,
+    priceCents: 14990,
     variants: [
       { ...BLACK, image: PHOTOS.poloBlack, position: "50% 40%" },
       { ...WHITE, image: PHOTOS.poloWhiteFolded, position: "50% 60%" },
@@ -155,41 +125,46 @@ export const mockProducts: Product[] = [
     measurements: teeSizes,
     fit: "Slim",
     fabric: "Piquê de algodão",
-    description: "Polo limpa, com o mínimo de bordado. Gola firme e botões em tom sobre tom.",
+    description:
+      "Polo limpa, com o mínimo de bordado. Gola firme e botões em tom sobre tom.",
   },
   {
-    id: "mock-05",
+    ...base,
+    id: "exemplo-05",
     name: "Tee Essential II",
     category: "Camiseta",
-    kind: "tee",
-    price: 95,
+    priceCents: 9590,
     variants: [{ ...WHITE, image: PHOTOS.teeWhiteHanger, position: "50% 50%" }],
     sizes: ["P", "M", "G", "GG"],
     measurements: teeSizes,
     fit: "Regular",
     fabric: "Algodão 100%, 200 g/m²",
-    description: "Versão mais encorpada da Essential, com gola canelada mais alta.",
+    description:
+      "Versão mais encorpada da Essential, com gola canelada mais alta.",
   },
   {
-    id: "mock-06",
+    ...base,
+    id: "exemplo-06",
     name: "Wide Sand",
     category: "Calça",
-    kind: "pants",
-    price: 199,
-    variants: [{ ...SAND, image: PHOTOS.chinoSandFlatlay, position: "12% 50%" }],
+    priceCents: 19900,
+    variants: [
+      { ...SAND, image: PHOTOS.chinoSandFlatlay, position: "12% 50%" },
+    ],
     sizes: ["38", "40", "42", "44", "46"],
     measurements: pantsSizes,
     fit: "Wide leg",
     fabric: "Sarja leve de algodão",
-    description: "Calça de perna larga em tom areia. Cós com passantes e bolsos faca.",
+    description:
+      "Calça de perna larga em tom areia. Cós com passantes e bolsos faca.",
     badge: "Novo",
   },
   {
-    id: "mock-07",
+    ...base,
+    id: "exemplo-07",
     name: "Hoodie Offline",
     category: "Oversized",
-    kind: "oversized",
-    price: 249,
+    priceCents: 24900,
     variants: [{ ...BLACK, image: PHOTOS.hoodieBlack, position: "50% 45%" }],
     sizes: ["M", "G", "GG"],
     measurements: oversizedSizes,
@@ -198,45 +173,45 @@ export const mockProducts: Product[] = [
     description: "Capuz forrado, bolso canguru e punho largo. Peça de inverno.",
   },
   {
-    id: "mock-08",
+    ...base,
+    id: "exemplo-08",
     name: "Jogger Static",
     category: "Calça",
-    kind: "pants",
-    price: 169,
+    priceCents: 16900,
     variants: [{ ...GRAY, image: PHOTOS.joggerGray, position: "50% 65%" }],
     sizes: ["38", "40", "42", "44"],
     measurements: pantsSizes,
     fit: "Jogger, barra com elástico",
     fabric: "Moletom 320 g/m²",
-    description: "Jogger de moletom cinza mescla, cós com elástico e bolsos laterais.",
+    description:
+      "Jogger de moletom cinza mescla, cós com elástico e bolsos laterais.",
   },
   {
-    id: "mock-09",
+    ...base,
+    id: "exemplo-09",
     name: "Tee Static",
     category: "Camiseta",
-    kind: "tee",
-    price: 109,
+    priceCents: 10900,
     variants: [{ ...BLACK, image: PHOTOS.teeBlackClose, position: "50% 50%" }],
     sizes: ["P", "M", "G", "GG"],
     measurements: teeSizes,
     fit: "Regular",
     fabric: "Algodão 100%, 180 g/m²",
-    description: "Preto no preto: estampa em tom sobre tom nas costas, acabamento emborrachado.",
+    description:
+      "Preto no preto: estampa em tom sobre tom nas costas, acabamento emborrachado.",
   },
   {
-    id: "mock-10",
+    ...base,
+    id: "exemplo-10",
     name: "Polo Street",
     category: "Polo",
-    kind: "polo",
-    price: 159,
+    priceCents: 15900,
     variants: [{ ...WHITE, image: PHOTOS.poloWhiteRack, position: "50% 40%" }],
     sizes: ["P", "M", "G", "GG"],
     measurements: teeSizes,
     fit: "Regular",
     fabric: "Piquê de algodão",
-    description: "Polo de corte urbano, manga um pouco mais longa e barra reta.",
+    description:
+      "Polo de corte urbano, manga um pouco mais longa e barra reta.",
   },
 ];
-
-export const formatPrice = (value: number) =>
-  value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });

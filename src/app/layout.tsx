@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Syne } from "next/font/google";
-import { SmoothScroll } from "@/components/SmoothScroll/SmoothScroll";
-import { CartProvider } from "@/components/Cart/CartProvider";
-import { CartDrawer } from "@/components/Cart/CartDrawer";
-import { brand } from "@/data/brand";
+import { Analytics } from "@vercel/analytics/next";
+import { brand, siteUrl } from "@/data/brand";
 import "./globals.css";
 
 const syne = Syne({
@@ -18,23 +16,42 @@ const inter = Inter({
   weight: ["400", "500"],
 });
 
+const title = `${brand.name} — ${brand.slogan}`;
+
 export const metadata: Metadata = {
-  title: `${brand.name} — ${brand.slogan}`,
+  metadataBase: new URL(siteUrl),
+  title: { default: title, template: `%s — ${brand.name}` },
   description: brand.description,
+  applicationName: brand.name,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "/",
+    siteName: brand.name,
+    title,
+    description: brand.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description: brand.description,
+  },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${syne.variable} ${inter.variable}`}>
       <body>
-        <CartProvider>
-          <SmoothScroll>{children}</SmoothScroll>
-          <CartDrawer />
-        </CartProvider>
+        {children}
+        <Analytics />
       </body>
     </html>
   );

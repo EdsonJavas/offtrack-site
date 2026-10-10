@@ -341,6 +341,39 @@
   color: var(--c-white);
 }
 
+.exampleBadge {
+  padding: 4px 8px;
+  background: #ffd84d;
+  color: var(--c-black);
+}
+
+.nudge {
+  animation: shake 400ms var(--ease-out);
+}
+
+@keyframes shake {
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+.orderMessage {
+  grid-column: 1 / -1;
+}
+
+.orderMessage:empty {
+  display: none;
+}
+
 .stamp {
   padding: 3px 7px;
   border: 2px solid var(--c-black);
@@ -495,7 +528,7 @@
 }
 
 .specs dt {
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--c-gray-600);
@@ -542,7 +575,7 @@
 }
 
 .sku {
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   text-align: right;
@@ -683,9 +716,10 @@
     }
   }
 
+  /* Sem scroll no fluxo normal; o plano B da mensagem pode exigir rolar. */
   .tagWrap {
     padding: 20px 20px 20px;
-    overflow: hidden;
+    overflow: hidden auto;
   }
 
   .tag {

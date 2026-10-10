@@ -54,7 +54,12 @@ const oversizedBody = (neck: string) =>
 const oversized: GarmentGeometry = {
   front: oversizedBody("C 170 150, 230 150, 240 120"),
   back: oversizedBody("C 170 128, 230 128, 240 120"),
-  seams: ["M108 238 L292 238", "M102 456 L298 456", "M74 254 L106 232", "M326 254 L294 232"],
+  seams: [
+    "M108 238 L292 238",
+    "M102 456 L298 456",
+    "M74 254 L106 232",
+    "M326 254 L294 232",
+  ],
   printFront: [200, 260],
   printBack: [200, 280],
   measures: [
@@ -133,10 +138,18 @@ const pants: GarmentGeometry = {
   ],
 };
 
-export const GEOMETRY: Record<GarmentKind, GarmentGeometry> = { tee, oversized, polo, shorts, pants };
+export const GEOMETRY: Record<GarmentKind, GarmentGeometry> = {
+  tee,
+  oversized,
+  polo,
+  shorts,
+  pants,
+};
 
 /** Gola crew/costas: faixa de ribana. */
-export const RIBBING: Partial<Record<GarmentKind, { front: string; back: string }>> = {
+export const RIBBING: Partial<
+  Record<GarmentKind, { front: string; back: string }>
+> = {
   tee: {
     front: "M165 112 C 176 142, 224 142, 235 112 C 224 150, 176 150, 165 112 Z",
     back: "M165 112 C 176 120, 224 120, 235 112 C 224 128, 176 128, 165 112 Z",

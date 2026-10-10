@@ -137,6 +137,28 @@
   color: #2a2a2a;
 }
 
+/* Sem animação: os painéis empilham na vertical. */
+@media (prefers-reduced-motion: reduce) {
+  .section {
+    height: auto !important;
+  }
+
+  .track {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .panel {
+    flex-basis: auto;
+    width: 100%;
+    height: auto;
+    min-height: 60svh;
+    padding: 80px var(--gutter);
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
 @media (min-width: 900px) {
   .panel {
     padding: 120px 80px 80px;

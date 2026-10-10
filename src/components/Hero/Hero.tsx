@@ -6,6 +6,7 @@ import { createProceduralSequence } from "@/components/FrameSequence/proceduralS
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { brand } from "@/data/brand";
+import { Star } from "@/components/ui/Star";
 import { drawHeroPlaceholder } from "./heroPlaceholder";
 import styles from "./Hero.module.css";
 
@@ -54,8 +55,16 @@ export function Hero() {
 
       timeline
         .to(`.${styles.hint}`, { opacity: 0, duration: 0.15 }, 0)
-        .to(`.${styles.wordmark}`, { yPercent: -40, opacity: 0, duration: 0.4 }, 0.15)
-        .to(`.${styles.sub}`, { opacity: 0, duration: 0.25 }, 0.15)
+        .to(
+          `.${styles.wordmark}`,
+          { yPercent: -40, opacity: 0, duration: 0.4 },
+          0.15,
+        )
+        .to(
+          [`.${styles.sub}`, `.${styles.cta}`],
+          { opacity: 0, duration: 0.25 },
+          0.15,
+        )
         // 150%, não 100%: o til do "Ã" sobe além da caixa da linha e vazaria pela máscara.
         .to(`.${styles.lineOne}`, { yPercent: 0, duration: 0.45 }, 0.55)
         .to(`.${styles.lineTwo}`, { yPercent: 0, duration: 0.45 }, 0.8)
@@ -76,7 +85,11 @@ export function Hero() {
         ease: "none",
         scrollTrigger: coverTrigger,
       });
-      gsap.to(`.${styles.dim}`, { opacity: 0.75, ease: "none", scrollTrigger: coverTrigger });
+      gsap.to(`.${styles.dim}`, {
+        opacity: 0.75,
+        ease: "none",
+        scrollTrigger: coverTrigger,
+      });
     }, section);
 
     ScrollTrigger.refresh();
@@ -102,11 +115,20 @@ export function Hero() {
         ].join(" ")}
       >
         <div className={styles.intro}>
-          <h1 className={styles.wordmark}>{brand.name}</h1>
-          <p className={styles.sub}>Streetwear</p>
+          <h1 className={styles.wordmark}>
+            {brand.name}
+            {/* O slogan faz parte do título para leitores de tela e buscadores. */}
+            <span className={styles.srOnly}>. {brand.slogan}</span>
+          </h1>
+          <p className={styles.sub}>
+            Streetwear masculino · {brand.city}, {brand.state}
+          </p>
+          <a href="#selecao" className={styles.cta}>
+            Ver peças <Star size={10} />
+          </a>
         </div>
 
-        <div className={styles.slogan} aria-label={brand.slogan}>
+        <div className={styles.slogan} aria-hidden="true">
           <span className={styles.mask}>
             <span className={styles.lineOne}>{sloganLineOne},</span>
           </span>
@@ -126,10 +148,16 @@ export function Hero() {
 
       <div className={styles.dim} aria-hidden="true" />
 
-      <div className={`${styles.loader} ${ready ? styles.loaderDone : ""}`} aria-hidden={ready}>
+      <div
+        className={`${styles.loader} ${ready ? styles.loaderDone : ""}`}
+        aria-hidden={ready}
+      >
         <span className={styles.loaderText}>Aguardem.</span>
         <span className={styles.loaderBar}>
-          <span className={styles.loaderFill} style={{ transform: `scaleX(${loadRatio})` }} />
+          <span
+            className={styles.loaderFill}
+            style={{ transform: `scaleX(${loadRatio})` }}
+          />
         </span>
       </div>
     </FrameSequence>

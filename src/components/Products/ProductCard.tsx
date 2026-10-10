@@ -2,11 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {
-  formatPrice,
-  type Product,
-  type ProductVariant,
-} from "@/data/mock/products";
+import type { Product, ProductVariant } from "@/data/types";
+import { formatPrice } from "@/lib/format";
 import { useCart } from "@/components/Cart/CartProvider";
 import { useFavorite } from "@/hooks/useFavorite";
 import { Star } from "@/components/ui/Star";
@@ -47,20 +44,17 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
           onClick={() => onOpen(product, variant)}
           aria-label={`Ver ${product.name}`}
         >
-          {product.variants.map((v) => (
-            <Image
-              key={v.color}
-              src={v.image}
-              alt={
-                v === variant ? `${product.name}, ${v.color.toLowerCase()}` : ""
-              }
-              fill
-              sizes="(min-width: 1500px) 25vw, (min-width: 1100px) 33vw, (min-width: 700px) 50vw, 100vw"
-              priority={index < 4 && v === product.variants[0]}
-              className={`${styles.photo} ${v === variant ? styles.photoActive : ""}`}
-              style={{ objectPosition: v.position ?? "50% 50%" }}
-            />
-          ))}
+          {/* Só a cor ativa fica no DOM: menos fotos baixadas. */}
+          <Image
+            key={variant.image}
+            src={variant.image}
+            alt={`${product.name}, ${variant.color.toLowerCase()}`}
+            fill
+            sizes="(min-width: 1500px) 25vw, (min-width: 1100px) 33vw, (min-width: 700px) 50vw, 100vw"
+            priority={index < 2}
+            className={styles.photo}
+            style={{ objectPosition: variant.position ?? "50% 50%" }}
+          />
           <span className={styles.hint}>
             Ver peça <Star size={10} />
           </span>
@@ -71,6 +65,7 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
           {product.badge && (
             <span className={styles.badge}>{product.badge}</span>
           )}
+          {product.example && <span className={styles.example}>Exemplo</span>}
           <button
             type="button"
             className={`${styles.fav} ${favorite ? styles.favOn : ""}`}
@@ -84,7 +79,9 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
 
         <span className={styles.priceTag}>
           <span className={styles.priceLabel}>Sob encomenda</span>
-          <span className={styles.price}>{formatPrice(product.price)}</span>
+          <span className={styles.price}>
+            {formatPrice(product.priceCents)}
+          </span>
         </span>
       </div>
 
@@ -93,13 +90,12 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
 
         <div className={styles.row}>
           <span className={styles.label}>Cor</span>
-          <div className={styles.swatches} role="radiogroup" aria-label="Cor">
+          <div className={styles.swatches}>
             {product.variants.map((v) => (
               <button
                 key={v.color}
                 type="button"
-                role="radio"
-                aria-checked={v === variant}
+                aria-pressed={v === variant}
                 aria-label={v.color}
                 title={v.color}
                 className={`${styles.swatch} ${v === variant ? styles.swatchActive : ""}`}
@@ -113,13 +109,12 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
 
         <div className={`${styles.row} ${nudge ? styles.nudge : ""}`}>
           <span className={styles.label}>Tam.</span>
-          <div className={styles.sizes} role="radiogroup" aria-label="Tamanho">
+          <div className={styles.sizes}>
             {product.sizes.map((s) => (
               <button
                 key={s}
                 type="button"
-                role="radio"
-                aria-checked={s === size}
+                aria-pressed={s === size}
                 className={`${styles.size} ${s === size ? styles.sizeActive : ""}`}
                 onClick={() => setSize(s === size ? null : s)}
               >

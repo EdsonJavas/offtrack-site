@@ -6,7 +6,8 @@ import type { DrawFrame } from "@/components/FrameSequence/proceduralSequence";
  * gira e cresce, um anel se expande e a luz varre o fundo.
  */
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeInOut = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 function starPath(ctx: CanvasRenderingContext2D, outer: number, inner: number) {
   ctx.beginPath();
@@ -21,7 +22,12 @@ function starPath(ctx: CanvasRenderingContext2D, outer: number, inner: number) {
   ctx.closePath();
 }
 
-export const drawHeroPlaceholder: DrawFrame = (ctx, progress, width, height) => {
+export const drawHeroPlaceholder: DrawFrame = (
+  ctx,
+  progress,
+  width,
+  height,
+) => {
   const cx = width / 2;
   const cy = height / 2;
   const base = Math.min(width, height);
@@ -31,7 +37,14 @@ export const drawHeroPlaceholder: DrawFrame = (ctx, progress, width, height) => 
 
   // Luz varrendo de cima para o centro.
   const lightY = cy - height * 0.35 * (1 - progress);
-  const light = ctx.createRadialGradient(cx, lightY, 0, cx, cy, base * (0.5 + progress * 0.7));
+  const light = ctx.createRadialGradient(
+    cx,
+    lightY,
+    0,
+    cx,
+    cy,
+    base * (0.5 + progress * 0.7),
+  );
   light.addColorStop(0, `rgba(244,244,242,${0.08 + 0.1 * progress})`);
   light.addColorStop(1, "rgba(244,244,242,0)");
   ctx.fillStyle = light;
@@ -66,7 +79,14 @@ export const drawHeroPlaceholder: DrawFrame = (ctx, progress, width, height) => 
   ctx.restore();
 
   // Vinheta para o texto ler bem nas bordas.
-  const vignette = ctx.createRadialGradient(cx, cy, base * 0.3, cx, cy, base * 0.95);
+  const vignette = ctx.createRadialGradient(
+    cx,
+    cy,
+    base * 0.3,
+    cx,
+    cy,
+    base * 0.95,
+  );
   vignette.addColorStop(0, "rgba(10,10,10,0)");
   vignette.addColorStop(1, "rgba(10,10,10,0.85)");
   ctx.fillStyle = vignette;

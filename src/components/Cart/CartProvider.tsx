@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Product, ProductVariant } from "@/data/mock/products";
+import type { Product, ProductVariant } from "@/data/types";
 
 export interface CartItem {
   /** productId + cor + tamanho. */
@@ -22,13 +22,15 @@ export interface CartItem {
   image: string;
   position?: string;
   size: string;
-  price: number;
+  /** Em centavos. */
+  priceCents: number;
   qty: number;
 }
 
 interface CartContextValue {
   items: CartItem[];
   count: number;
+  /** Em centavos. */
   subtotal: number;
   isOpen: boolean;
   toast: string | null;
@@ -42,10 +44,58 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-const STORAGE_KEY = "offtrack-cart";
+/** Versão na chave: um carrinho antigo (preços em reais, mock) é descartado. */
+const STORAGE_KEY = "offtrack-cart-v2";
+const MAX_QTY = 10;
 const TOAST_MS = 2200;
 
-export function CartProvider({ children }: { children: ReactNode }) {
+function isCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.key === "string" &&
+    typeof v.productId === "string" &&
+    typeof v.size === "string" &&
+    typeof v.priceCents === "number" &&
+    typeof v.qty === "number"
+  );
+}
+
+/**
+ * Reconcilia o carrinho salvo com o catálogo atual: peça que sumiu sai,
+ * preço/nome/foto são os de agora.
+ */
+function reconcile(items: CartItem[], catalog: Product[]): CartItem[] {
+  return items.flatMap((item) => {
+    const product = catalog.find((p) => p.id === item.productId);
+    if (!product) return [];
+    const variant =
+      product.variants.find((v) => v.color === item.color) ??
+      product.variants[0];
+    if (!product.sizes.includes(item.size)) return [];
+    return [
+      {
+        ...item,
+        name: product.name,
+        category: product.category,
+        color: variant.color,
+        hex: variant.hex,
+        image: variant.image,
+        position: variant.position,
+        priceCents: product.priceCents,
+        qty: Math.min(item.qty, MAX_QTY),
+      },
+    ];
+  });
+}
+
+export function CartProvider({
+  catalog,
+  children,
+}: {
+  catalog: Product[];
+  children: ReactNode;
+}) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -57,17 +107,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     queueMicrotask(() => {
       if (cancelled) return;
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) setItems(JSON.parse(saved));
+        const saved: unknown = JSON.parse(
+          localStorage.getItem(STORAGE_KEY) ?? "[]",
+        );
+        if (Array.isArray(saved))
+          setItems(reconcile(saved.filter(isCartItem), catalog));
       } catch {
-        // Storage indisponível: carrinho só em memória.
+        // Storage indisponível ou corrompido: carrinho vazio.
       }
       setHydrated(true);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [catalog]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -84,32 +137,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const add = useCallback((product: Product, variant: ProductVariant, size: string) => {
-    const key = `${product.id}|${variant.color}|${size}`;
-    setItems((current) => {
-      const existing = current.find((i) => i.key === key);
-      if (existing) {
-        return current.map((i) => (i.key === key ? { ...i, qty: i.qty + 1 } : i));
-      }
-      return [
-        ...current,
-        {
-          key,
-          productId: product.id,
-          name: product.name,
-          category: product.category,
-          color: variant.color,
-          hex: variant.hex,
-          image: variant.image,
-          position: variant.position,
-          size,
-          price: product.price,
-          qty: 1,
-        },
-      ];
-    });
-    setToast(`${product.name} · ${variant.color} · ${size} no carrinho`);
-  }, []);
+  const add = useCallback(
+    (product: Product, variant: ProductVariant, size: string) => {
+      const key = `${product.id}|${variant.color}|${size}`;
+      setItems((current) => {
+        const existing = current.find((i) => i.key === key);
+        if (existing) {
+          return current.map((i) =>
+            i.key === key ? { ...i, qty: Math.min(MAX_QTY, i.qty + 1) } : i,
+          );
+        }
+        return [
+          ...current,
+          {
+            key,
+            productId: product.id,
+            name: product.name,
+            category: product.category,
+            color: variant.color,
+            hex: variant.hex,
+            image: variant.image,
+            position: variant.position,
+            size,
+            priceCents: product.priceCents,
+            qty: 1,
+          },
+        ];
+      });
+      setToast(`${product.name} · ${variant.color} · ${size} no carrinho`);
+    },
+    [],
+  );
 
   const remove = useCallback((key: string) => {
     setItems((current) => current.filter((i) => i.key !== key));
@@ -119,7 +177,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((current) =>
       qty <= 0
         ? current.filter((i) => i.key !== key)
-        : current.map((i) => (i.key === key ? { ...i, qty } : i)),
+        : current.map((i) =>
+            i.key === key ? { ...i, qty: Math.min(MAX_QTY, qty) } : i,
+          ),
     );
   }, []);
 
@@ -131,7 +191,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () => ({
       items,
       count: items.reduce((n, i) => n + i.qty, 0),
-      subtotal: items.reduce((n, i) => n + i.qty * i.price, 0),
+      subtotal: items.reduce((n, i) => n + i.qty * i.priceCents, 0),
       isOpen,
       toast,
       add,

@@ -310,6 +310,15 @@
   color: var(--fg-muted);
 }
 
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--c-gray-200);
+}
+
 .clear {
   justify-self: start;
   font-size: 11px;

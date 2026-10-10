@@ -32,6 +32,40 @@
   color: var(--fg-muted);
 }
 
+/* Condições da compra, antes dos cards. */
+.trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 18px;
+  list-style: none;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-gray-200);
+}
+
+.trust li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exampleNotice {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid #ffd84d;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #ffd84d;
+}
+
+.emptyFilter {
+  padding: 40px 0;
+  font-size: 14px;
+  color: var(--fg-muted);
+}
+
 /* Barra: filtros à esquerda, paginação à direita. */
 .bar {
   display: flex;

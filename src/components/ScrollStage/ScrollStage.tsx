@@ -15,7 +15,14 @@ interface ScrollStageProps {
  * Seção alta com um palco fixo (sticky). A seção que a usa cria sua própria
  * timeline GSAP com `scrub`, tendo a seção como trigger ("top top" → "bottom bottom").
  */
-export function ScrollStage({ scrollLength, id, className, stageClassName, children, ref }: ScrollStageProps) {
+export function ScrollStage({
+  scrollLength,
+  id,
+  className,
+  stageClassName,
+  children,
+  ref,
+}: ScrollStageProps) {
   return (
     <section
       ref={ref}
@@ -23,7 +30,9 @@ export function ScrollStage({ scrollLength, id, className, stageClassName, child
       className={`${styles.section} ${className ?? ""}`}
       style={{ height: `${scrollLength * 100}svh` }}
     >
-      <div className={`${styles.stage} ${stageClassName ?? ""}`}>{children}</div>
+      <div className={`${styles.stage} ${stageClassName ?? ""}`}>
+        {children}
+      </div>
     </section>
   );
 }

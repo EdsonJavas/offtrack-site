@@ -14,7 +14,9 @@ type Frame = ImageBitmap | HTMLImageElement;
  * Sequência de frames extraídos de um vídeo (WebP), desenhada em cover-fit.
  * Enquanto um frame não chegou, usa o mais próximo já carregado.
  */
-export function createImageSequence(options: ImageSequenceOptions): FrameSource {
+export function createImageSequence(
+  options: ImageSequenceOptions,
+): FrameSource {
   return () => new ImageSequenceRenderer(options);
 }
 
@@ -43,8 +45,15 @@ class ImageSequenceRenderer implements FrameRenderer {
     await Promise.all(Array.from({ length: concurrency }, worker));
   }
 
-  draw(ctx: CanvasRenderingContext2D, progress: number, width: number, height: number) {
-    const frame = this.nearestFrame(Math.round(progress * (this.options.count - 1)));
+  draw(
+    ctx: CanvasRenderingContext2D,
+    progress: number,
+    width: number,
+    height: number,
+  ) {
+    const frame = this.nearestFrame(
+      Math.round(progress * (this.options.count - 1)),
+    );
     if (!frame) return;
 
     const scale = Math.max(width / frame.width, height / frame.height);

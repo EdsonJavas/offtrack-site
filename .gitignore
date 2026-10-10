@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 !.env.example
+
+# catálogo e fotos salvos localmente pelo painel
+content/
+public/uploads/

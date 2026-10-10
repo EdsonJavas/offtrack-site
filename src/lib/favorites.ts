@@ -5,6 +5,7 @@
 const STORAGE_KEY = "offtrack-favorites";
 const listeners = new Set<() => void>();
 let cache: Set<string> | null = null;
+let version = 0;
 
 function load(): Set<string> {
   if (cache) return cache;
@@ -18,6 +19,7 @@ function load(): Set<string> {
 
 function persist(next: Set<string>) {
   cache = next;
+  version++;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
   } catch {
@@ -26,10 +28,24 @@ function persist(next: Set<string>) {
   listeners.forEach((l) => l());
 }
 
+// Outra aba mudou os favoritos: recarrega e avisa.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key !== STORAGE_KEY) return;
+    cache = null;
+    version++;
+    listeners.forEach((l) => l());
+  });
+}
+
 export const favoritesStore = {
   subscribe(listener: () => void) {
     listeners.add(listener);
     return () => listeners.delete(listener);
+  },
+  /** Muda a cada alteração: serve de snapshot para quem lista favoritos. */
+  version() {
+    return version;
   },
   has(id: string) {
     return load().has(id);

@@ -48,12 +48,13 @@
 
 .photo {
   object-fit: cover;
-  opacity: 0;
-  transition: opacity 500ms var(--ease-out);
+  animation: photoIn 400ms var(--ease-out);
 }
 
-.photoActive {
-  opacity: 1;
+@keyframes photoIn {
+  from {
+    opacity: 0;
+  }
 }
 
 .hint {
@@ -91,12 +92,19 @@
 }
 
 .category,
-.badge {
+.badge,
+.example {
   padding: 5px 8px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+}
+
+/* Catálogo de exemplo: aviso visível por cima da foto. */
+.example {
+  background: #ffd84d;
+  color: var(--c-black);
 }
 
 .category {
@@ -151,7 +159,7 @@
 }
 
 .priceLabel {
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.26em;
   text-transform: uppercase;
@@ -186,8 +194,8 @@
 }
 
 .label {
-  flex: 0 0 32px;
-  font-size: 9px;
+  flex: 0 0 34px;
+  font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--fg-muted);

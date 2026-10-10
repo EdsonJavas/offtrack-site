@@ -103,6 +103,16 @@ h3 {
   color: var(--c-black);
 }
 
+/* Foco visível para teclado, em tudo que é interativo. */
+:focus-visible {
+  outline: 2px solid var(--c-white);
+  outline-offset: 3px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* Utilitários compartilhados entre seções. */
 .container {
   width: 100%;

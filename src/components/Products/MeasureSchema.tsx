@@ -1,6 +1,6 @@
 import { Garment } from "@/components/Garment/Garment";
 import { GEOMETRY, type GarmentKind } from "@/components/Garment/geometry";
-import { MEASURE_LABELS, type MeasureKey } from "@/data/mock/products";
+import { MEASURE_LABELS, type MeasureKey } from "@/data/types";
 import styles from "./MeasureSchema.module.css";
 
 interface MeasureSchemaProps {
@@ -16,11 +16,21 @@ const LETTERS = ["A", "B", "C", "D"];
  * Painel de medidas: silhueta da peça com as linhas marcadas por letra
  * e a legenda com os valores do tamanho escolhido.
  */
-export function MeasureSchema({ kind, size, measurements, open }: MeasureSchemaProps) {
-  const lines = GEOMETRY[kind].measures.filter((m) => measurements?.[m.key] !== undefined);
+export function MeasureSchema({
+  kind,
+  size,
+  measurements,
+  open,
+}: MeasureSchemaProps) {
+  const lines = GEOMETRY[kind].measures.filter(
+    (m) => measurements?.[m.key] !== undefined,
+  );
 
   return (
-    <aside className={`${styles.panel} ${open ? styles.open : ""}`} aria-hidden={!open}>
+    <aside
+      className={`${styles.panel} ${open ? styles.open : ""}`}
+      aria-hidden={!open}
+    >
       <header className={styles.head}>
         <p className={styles.title}>Medidas</p>
         <p className={styles.size}>
@@ -29,7 +39,12 @@ export function MeasureSchema({ kind, size, measurements, open }: MeasureSchemaP
       </header>
 
       <div className={styles.figure}>
-        <Garment kind={kind} color="#3a3a3a" view="front" className={styles.silhouette} />
+        <Garment
+          kind={kind}
+          color="#3a3a3a"
+          view="front"
+          className={styles.silhouette}
+        />
         <svg viewBox="0 0 400 480" className={styles.lines} aria-hidden="true">
           {lines.map((m, i) => {
             const vertical = m.from[0] === m.to[0];
@@ -39,7 +54,11 @@ export function MeasureSchema({ kind, size, measurements, open }: MeasureSchemaP
             const lx = vertical ? m.from[0] + 18 : mx;
             const ly = vertical ? my : m.from[1] - 14;
             return (
-              <g key={m.key} className={styles.line} style={{ "--d": `${i * 120}ms` } as React.CSSProperties}>
+              <g
+                key={m.key}
+                className={styles.line}
+                style={{ "--d": `${i * 120}ms` } as React.CSSProperties}
+              >
                 <line x1={m.from[0]} y1={m.from[1]} x2={m.to[0]} y2={m.to[1]} />
                 <line
                   x1={m.from[0] - (vertical ? 7 : 0)}
@@ -78,7 +97,9 @@ export function MeasureSchema({ kind, size, measurements, open }: MeasureSchemaP
         ))}
       </dl>
 
-      <p className={styles.note}>Medidas aproximadas da peça esticada, em centímetros.</p>
+      <p className={styles.note}>
+        Medidas aproximadas da peça esticada, em centímetros.
+      </p>
     </aside>
   );
 }
