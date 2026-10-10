@@ -6,7 +6,7 @@ import Link from "next/link";
 import { brand } from "@/data/brand";
 import { useCart } from "@/components/Cart/CartProvider";
 import { useModal } from "@/hooks/useModal";
-import { Star } from "@/components/ui/Star";
+import { InstagramIcon } from "@/components/ui/InstagramIcon";
 import { LogoStar } from "@/components/ui/LogoStar";
 import styles from "./Header.module.css";
 
@@ -62,7 +62,7 @@ export function Header() {
           rel="noopener noreferrer"
           className={styles.instagram}
         >
-          <Star size={12} />
+          <InstagramIcon size={14} />
           <span>{brand.instagram.handle}</span>
         </a>
 
@@ -130,7 +130,7 @@ export function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Star size={10} /> {brand.instagram.handle}
+                <InstagramIcon size={14} /> {brand.instagram.handle}
               </a>
               <p>
                 {brand.city}, {brand.state} · {brand.slogan}
