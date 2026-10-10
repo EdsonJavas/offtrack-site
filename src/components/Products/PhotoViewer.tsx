@@ -13,6 +13,8 @@ interface PhotoViewerProps {
   variant: ProductVariant;
   measurements?: Partial<Record<MeasureKey, number>>;
   showMeasures: boolean;
+  /** Luminosidade da base da foto: define a cor do texto sobreposto. */
+  bottomTone?: "light" | "dark";
 }
 
 const ZOOM = 2.2;
@@ -21,7 +23,14 @@ const ZOOM = 2.2;
  * Foto da peça em tela grande. A luz segue o ponteiro; toque duplo dá zoom
  * e, com zoom, arrastar move a foto. "Medidas" abre o esquema da silhueta.
  */
-export function PhotoViewer({ name, kind, variant, measurements, showMeasures }: PhotoViewerProps) {
+export function PhotoViewer({
+  name,
+  kind,
+  variant,
+  measurements,
+  showMeasures,
+  bottomTone = "dark",
+}: PhotoViewerProps) {
   const [zoom, setZoom] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [light, setLight] = useState({ x: 50, y: 35 });
@@ -71,6 +80,7 @@ export function PhotoViewer({ name, kind, variant, measurements, showMeasures }:
     <div
       ref={stageRef}
       className={`${styles.stage} ${zoom ? styles.zoomed : ""}`}
+      data-bottom={bottomTone}
       style={{ "--lx": `${light.x}%`, "--ly": `${light.y}%` } as React.CSSProperties}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

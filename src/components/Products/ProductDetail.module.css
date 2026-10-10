@@ -76,19 +76,6 @@
   transition: background var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
 }
 
-.close::after {
-  content: "Fechar";
-  position: absolute;
-  right: calc(100% + 10px);
-  font-size: 9px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--c-white);
-  opacity: 0;
-  transform: translateX(6px);
-  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
-}
-
 .close span {
   position: absolute;
   width: 18px;
@@ -122,9 +109,49 @@
   transform: rotate(135deg);
 }
 
-.close:hover::after {
-  opacity: 1;
-  transform: none;
+/* ---- Controles se ajustam à luminosidade da foto ---- */
+
+.viewer[data-top="light"] .close {
+  border-color: rgba(10, 10, 10, 0.5);
+  background: rgba(244, 244, 242, 0.6);
+}
+
+.viewer[data-top="light"] .close span {
+  background: var(--c-black);
+}
+
+.viewer[data-top="light"] .close:hover {
+  background: var(--c-black);
+  border-color: var(--c-black);
+}
+
+.viewer[data-top="light"] .close:hover span {
+  background: var(--c-white);
+}
+
+.viewer[data-top="light"] .measuresToggle {
+  border-color: var(--c-black);
+  background: rgba(244, 244, 242, 0.6);
+  color: var(--c-black);
+}
+
+.viewer[data-top="light"] .measuresToggle:hover,
+.viewer[data-top="light"] .measuresOn {
+  background: var(--c-black);
+  color: var(--c-white);
+}
+
+.viewer[data-top="light"] .counter {
+  color: var(--c-black);
+  text-shadow: none;
+}
+
+.viewer[data-bottom="light"] .thumb {
+  border-color: rgba(10, 10, 10, 0.35);
+}
+
+.viewer[data-bottom="light"] .thumbActive {
+  border-color: var(--c-black);
 }
 
 /* ---- Foto ---- */

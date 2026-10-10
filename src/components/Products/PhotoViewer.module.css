@@ -119,10 +119,20 @@
   text-transform: uppercase;
   color: var(--c-gray-200);
   pointer-events: none;
+  transition: color var(--dur) var(--ease-out);
 }
 
 .hudHint {
   color: var(--fg-muted);
+}
+
+/* Base da foto clara: texto escuro. */
+.stage[data-bottom="light"] .hud {
+  color: var(--c-black);
+}
+
+.stage[data-bottom="light"] .hudHint {
+  color: var(--c-gray-600);
 }
 
 @media (max-width: 699px) {

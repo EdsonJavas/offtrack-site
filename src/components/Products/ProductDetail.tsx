@@ -12,6 +12,7 @@ import {
   type ProductVariant,
 } from "@/data/mock/products";
 import { lenisStore } from "@/lib/lenis";
+import { useImageTone } from "@/hooks/useImageTone";
 import { buildOrderMessage, sendOrder } from "@/lib/order";
 import { useCart } from "@/components/Cart/CartProvider";
 import { Star } from "@/components/ui/Star";
@@ -33,6 +34,8 @@ export function ProductDetail({ product, initialVariant, onClose }: ProductDetai
   const [copied, setCopied] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const cart = useCart();
+  // Foto clara → controles escuros, e vice-versa.
+  const tones = useImageTone(variant.image);
 
   // Trava o scroll da página e fecha com Esc.
   useEffect(() => {
@@ -82,7 +85,7 @@ export function ProductDetail({ product, initialVariant, onClose }: ProductDetai
       </div>
 
       <div className={styles.panel}>
-        <div className={styles.viewer}>
+        <div className={styles.viewer} data-top={tones?.top ?? "dark"} data-bottom={tones?.bottom ?? "dark"}>
           <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label="Fechar">
             <span />
             <span />
@@ -94,6 +97,7 @@ export function ProductDetail({ product, initialVariant, onClose }: ProductDetai
             variant={variant}
             measurements={measures}
             showMeasures={showMeasures}
+            bottomTone={tones?.bottom ?? "dark"}
           />
 
           <div className={styles.viewerTop}>
