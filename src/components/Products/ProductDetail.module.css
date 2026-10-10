@@ -11,11 +11,11 @@
   animation: fadeIn 300ms var(--ease-out);
 }
 
+/* Fundo sólido no celular: nada da página aparece atrás da etiqueta. */
 .backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(10, 10, 10, 0.82);
-  backdrop-filter: blur(8px);
+  background: var(--c-black);
   cursor: default;
 }
 
@@ -678,6 +678,11 @@
 @media (min-width: 900px) {
   .overlay {
     padding: 20px;
+  }
+
+  .backdrop {
+    background: rgba(10, 10, 10, 0.88);
+    backdrop-filter: blur(8px);
   }
 
   .panel {

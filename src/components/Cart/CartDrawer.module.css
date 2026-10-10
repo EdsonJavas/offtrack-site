@@ -11,11 +11,11 @@
   transition-delay: 0s;
 }
 
+/* Fundo sólido no celular (o carrinho é uma tela); escurecido forte no desktop. */
 .backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(10, 10, 10, 0.6);
-  backdrop-filter: blur(4px);
+  background: var(--c-black);
   opacity: 0;
   transition: opacity 400ms var(--ease-out);
   cursor: default;
@@ -367,4 +367,11 @@
 .toastVisible {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+@media (min-width: 700px) {
+  .backdrop {
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(6px);
+  }
 }
