@@ -8,6 +8,7 @@ import { brand } from "@/data/brand";
 import { useCart } from "@/components/Cart/CartProvider";
 import { ScrollStage } from "@/components/ScrollStage/ScrollStage";
 import { Star } from "@/components/ui/Star";
+import { Wordmark } from "@/components/ui/Wordmark";
 import styles from "./Outro.module.css";
 
 /**
@@ -81,8 +82,12 @@ export function Outro() {
         </div>
 
         <div className={styles.word} aria-hidden="true">
-          <span className={styles.wordOutline}>{brand.name}</span>
-          <span className={styles.wordFill}>{brand.name}</span>
+          <span className={styles.wordOutline}>
+            <Wordmark hollow />
+          </span>
+          <span className={styles.wordFill}>
+            <Wordmark />
+          </span>
         </div>
 
         <footer className={styles.foot}>

@@ -102,8 +102,7 @@
 }
 
 .wordOutline {
-  color: transparent;
-  -webkit-text-stroke: 1px var(--c-gray-600);
+  color: var(--c-gray-600);
 }
 
 .wordFill {

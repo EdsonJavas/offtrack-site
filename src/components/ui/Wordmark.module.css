@@ -1,0 +1,56 @@
+/* Tudo em em: escala com o font-size de quem usa. */
+.mark {
+  position: relative;
+  display: inline-block;
+  padding-right: 0.42em; /* espaço da estrela e do ® */
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Syne 800 é o máximo da família; o contorno engrossa o traço como no logo. */
+.text {
+  -webkit-text-stroke: 0.035em currentColor;
+  paint-order: stroke fill;
+}
+
+/* Versão vazada: letras só com contorno fino; estrela e ® na mesma cor do traço. */
+.hollow {
+  color: var(--c-gray-600);
+}
+
+.hollow .text {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--c-gray-600);
+  paint-order: normal;
+}
+
+.star {
+  position: absolute;
+  top: -0.2em;
+  right: 0.06em;
+  width: 0.34em;
+  height: 0.34em;
+}
+
+/* ® em 0.12em do pai: as medidas abaixo são relativas a esse tamanho
+   (1.7em aqui ≈ 0.2em do logotipo). */
+.reg {
+  position: absolute;
+  right: 0.7em;
+  bottom: 0.1em;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 1.7em;
+  height: 1.7em;
+  border: 0.14em solid currentColor;
+  border-radius: 50%;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.12em;
+  letter-spacing: 0;
+}

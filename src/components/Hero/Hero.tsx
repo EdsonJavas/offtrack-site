@@ -6,6 +6,7 @@ import { createProceduralSequence } from "@/components/FrameSequence/proceduralS
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { brand } from "@/data/brand";
+import { Wordmark } from "@/components/ui/Wordmark";
 import { drawHeroPlaceholder } from "./heroPlaceholder";
 import styles from "./Hero.module.css";
 
@@ -111,7 +112,7 @@ export function Hero() {
       >
         <div className={styles.intro}>
           <h1 className={styles.wordmark}>
-            {brand.name}
+            <Wordmark />
             {/* O slogan faz parte do título para leitores de tela e buscadores. */}
             <span className={styles.srOnly}>. {brand.slogan}</span>
           </h1>
