@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useRef, useState, type PointerEvent } from "react";
-import { mockProducts, type Product, type ProductVariant } from "@/data/mock/products";
+import {
+  mockProducts,
+  type Product,
+  type ProductVariant,
+} from "@/data/mock/products";
 import { useMediaValue } from "@/hooks/useMediaValue";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "./ProductCard";
@@ -20,14 +24,21 @@ const SWIPE_THRESHOLD = 48;
  * Antes de publicar: trocar pela lista confirmada pelo dono e pelas fotos reais.
  */
 export function Products() {
-  const perPage = useMediaValue([{ minWidth: 700, value: 2 }, { minWidth: 1100, value: 3 }], 1);
+  const perPage = useMediaValue(
+    [
+      { minWidth: 700, value: 2 },
+      { minWidth: 1100, value: 3 },
+    ],
+    1,
+  );
   const pageCount = Math.ceil(mockProducts.length / perPage);
   const [requestedPage, setPage] = useState(0);
   const [selection, setSelection] = useState<Selection | null>(null);
   const dragStart = useRef<number | null>(null);
 
   const open = useCallback(
-    (product: Product, variant: ProductVariant) => setSelection({ product, variant }),
+    (product: Product, variant: ProductVariant) =>
+      setSelection({ product, variant }),
     [],
   );
   const close = useCallback(() => setSelection(null), []);
@@ -35,7 +46,8 @@ export function Products() {
   // Se o breakpoint mudar e houver menos páginas, fica na última válida.
   const page = Math.min(requestedPage, pageCount - 1);
 
-  const goTo = (next: number) => setPage(Math.max(0, Math.min(pageCount - 1, next)));
+  const goTo = (next: number) =>
+    setPage(Math.max(0, Math.min(pageCount - 1, next)));
 
   const onPointerDown = (e: PointerEvent) => {
     dragStart.current = e.clientX;
@@ -54,80 +66,97 @@ export function Products() {
 
   return (
     <section id="selecao" className={styles.section}>
-      <Reveal className={styles.head}>
-        <div>
-          <p className="eyebrow">Seleção</p>
-          <h2 className={styles.title}>Peças sob encomenda.</h2>
-        </div>
+      <div className={styles.inner}>
+        <Reveal className={styles.head}>
+          <div>
+            <p className="eyebrow">Seleção</p>
+            <h2 className={styles.title}>Peças sob encomenda.</h2>
+          </div>
 
-        <div className={styles.controls}>
-          <p className={styles.counter}>
-            <span>{String(page + 1).padStart(2, "0")}</span>
-            <span className={styles.counterSep} />
-            <span>{String(pageCount).padStart(2, "0")}</span>
-          </p>
-          <div className={styles.arrows}>
-            <button
-              type="button"
-              className={styles.arrow}
-              onClick={() => goTo(page - 1)}
-              disabled={page === 0}
-              aria-label="Página anterior"
-            >
-              <ArrowIcon direction="left" />
-            </button>
-            <button
-              type="button"
-              className={styles.arrow}
-              onClick={() => goTo(page + 1)}
-              disabled={page === pageCount - 1}
-              aria-label="Próxima página"
-            >
-              <ArrowIcon direction="right" />
-            </button>
+          <div className={styles.aside}>
+            <p className={styles.lead}>
+              Camisetas, oversized, polos e calças. Você escolhe cor e tamanho,
+              a gente confirma com o fornecedor e combina tudo pelo Direct.
+            </p>
+
+            <div className={styles.controls}>
+              <p className={styles.counter}>
+                <span>{String(page + 1).padStart(2, "0")}</span>
+                <span className={styles.counterSep} />
+                <span>{String(pageCount).padStart(2, "0")}</span>
+              </p>
+              <div className={styles.arrows}>
+                <button
+                  type="button"
+                  className={styles.arrow}
+                  onClick={() => goTo(page - 1)}
+                  disabled={page === 0}
+                  aria-label="Página anterior"
+                >
+                  <ArrowIcon direction="left" />
+                </button>
+                <button
+                  type="button"
+                  className={styles.arrow}
+                  onClick={() => goTo(page + 1)}
+                  disabled={page === pageCount - 1}
+                  aria-label="Próxima página"
+                >
+                  <ArrowIcon direction="right" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+
+        <div
+          className={styles.viewport}
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          onPointerCancel={() => (dragStart.current = null)}
+        >
+          <div
+            className={styles.track}
+            style={{ transform: `translateX(-${page * 100}%)` }}
+          >
+            {pages.map((items, i) => (
+              <ul
+                key={i}
+                className={styles.page}
+                style={{ "--per-page": perPage } as React.CSSProperties}
+                aria-hidden={i !== page}
+              >
+                {items.map((product, j) => (
+                  <li key={product.id}>
+                    <ProductCard
+                      product={product}
+                      index={i * perPage + j}
+                      onOpen={open}
+                    />
+                  </li>
+                ))}
+              </ul>
+            ))}
           </div>
         </div>
-      </Reveal>
 
-      <div
-        className={styles.viewport}
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => (dragStart.current = null)}
-      >
         <div
-          className={styles.track}
-          style={{ transform: `translateX(-${page * 100}%)` }}
+          className={styles.pagination}
+          role="tablist"
+          aria-label="Páginas da seleção"
         >
-          {pages.map((items, i) => (
-            <ul
+          {pages.map((_, i) => (
+            <button
               key={i}
-              className={styles.page}
-              style={{ "--per-page": perPage } as React.CSSProperties}
-              aria-hidden={i !== page}
-            >
-              {items.map((product, j) => (
-                <li key={product.id}>
-                  <ProductCard product={product} index={i * perPage + j} onOpen={open} />
-                </li>
-              ))}
-            </ul>
+              type="button"
+              role="tab"
+              aria-selected={i === page}
+              aria-label={`Página ${i + 1}`}
+              className={`${styles.dot} ${i === page ? styles.dotActive : ""}`}
+              onClick={() => goTo(i)}
+            />
           ))}
         </div>
-      </div>
-
-      <div className={styles.pagination} role="tablist" aria-label="Páginas da seleção">
-        {pages.map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            role="tab"
-            aria-selected={i === page}
-            aria-label={`Página ${i + 1}`}
-            className={`${styles.dot} ${i === page ? styles.dotActive : ""}`}
-            onClick={() => goTo(i)}
-          />
-        ))}
       </div>
 
       {selection && (

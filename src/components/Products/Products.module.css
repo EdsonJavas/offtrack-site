@@ -1,20 +1,39 @@
-/* Seção full-bleed: só o gutter separa os cards das bordas da tela. */
+/* Seção com margens reais: o conteúdo nunca encosta na borda da tela. */
 .section {
   position: relative;
   z-index: 2;
-  padding: var(--section-y) var(--gutter);
+  padding: clamp(120px, 16vw, 200px) 0 clamp(96px, 12vw, 160px);
   background: var(--c-black);
+}
+
+.inner {
+  width: min(1240px, 100% - 2 * var(--gutter));
+  margin-inline: auto;
 }
 
 .head {
   display: grid;
-  gap: 24px;
-  margin-bottom: 40px;
+  gap: 28px;
+  margin-bottom: clamp(40px, 6vw, 72px);
 }
 
 .title {
-  margin-top: 16px;
-  font-size: clamp(28px, 6vw, 84px);
+  margin-top: 14px;
+  font-size: clamp(30px, 4.4vw, 60px);
+  max-width: 14ch;
+}
+
+.aside {
+  display: grid;
+  gap: 28px;
+  align-content: end;
+}
+
+.lead {
+  max-width: 42ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--c-gray-200);
 }
 
 .controls {
@@ -30,12 +49,13 @@
   gap: 12px;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.2em;
+  color: var(--c-gray-200);
 }
 
 .counterSep {
-  width: 32px;
+  width: 28px;
   height: 1px;
   background: var(--line-strong);
 }
@@ -48,8 +68,8 @@
 .arrow {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
   transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out),
@@ -82,14 +102,15 @@
   flex: 0 0 100%;
   display: grid;
   grid-template-columns: repeat(var(--per-page), minmax(0, 1fr));
-  gap: 16px;
+  gap: 24px;
   list-style: none;
 }
 
 .pagination {
   display: flex;
-  gap: 6px;
-  margin-top: 28px;
+  gap: 8px;
+  width: min(360px, 100%);
+  margin: 40px auto 0;
 }
 
 .dot {
@@ -114,17 +135,27 @@
 
 @media (min-width: 700px) {
   .page {
-    gap: 20px;
+    gap: 28px;
   }
 }
 
 @media (min-width: 900px) {
   .head {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     align-items: end;
+    gap: 64px;
+  }
+
+  .aside {
+    justify-items: end;
+    text-align: right;
   }
 
   .controls {
-    gap: 40px;
+    width: 100%;
+  }
+
+  .page {
+    gap: 32px;
   }
 }

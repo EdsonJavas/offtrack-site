@@ -58,7 +58,6 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
 
         {/* Preço em destaque, colado na foto. */}
         <span className={styles.priceTag}>
-          <span className={styles.priceLabel}>Sob encomenda</span>
           <span className={styles.price}>{formatPrice(product.price)}</span>
         </span>
 

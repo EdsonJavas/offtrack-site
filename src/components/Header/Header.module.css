@@ -8,11 +8,16 @@
   gap: 16px;
   padding: 18px var(--gutter);
   mix-blend-mode: difference;
-  transition: padding var(--dur) var(--ease-out);
+  transition: padding var(--dur) var(--ease-out), background var(--dur) var(--ease-out);
 }
 
+/* Depois do hero: faixa escura sólida, sem se misturar com o conteúdo. */
 .scrolled {
   padding-block: 12px;
+  mix-blend-mode: normal;
+  background: rgba(10, 10, 10, 0.78);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
 }
 
 .monogram {
