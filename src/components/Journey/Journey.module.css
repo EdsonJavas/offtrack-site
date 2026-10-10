@@ -7,8 +7,8 @@
   position: relative;
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  grid-template-columns: 56px 1fr;
-  gap: 0 20px;
+  grid-template-columns: 44px 1fr;
+  gap: 0 14px;
   height: 100%;
   padding: 88px var(--gutter) 24px;
   background:
@@ -71,7 +71,7 @@
   position: relative;
   grid-row: 3;
   grid-column: 1;
-  width: 56px;
+  width: 44px;
   min-height: 0;
 }
 
@@ -138,7 +138,6 @@
   display: grid;
   align-content: center;
   gap: 14px;
-  max-width: 44ch;
   will-change: transform, opacity;
 }
 
@@ -192,19 +191,25 @@
   color: var(--c-gray-200);
 }
 
-/* Syne mede ~1,36em por letra: 10 letras cabem em 64px numa coluna de ~900px. */
+/* Syne mede ~1,36em por letra. O tamanho acompanha a coluna para "FORNECEDOR"
+   caber inteiro; se um dia não couber, quebra com hífen pela regra do pt-BR. */
 .stepTitle {
-  font-size: clamp(22px, 4.6vw, 64px);
-  overflow-wrap: anywhere;
+  /* Coluna no celular = largura − 98px; 20px × 1,36 × 10 letras = 272px cabe a partir de 370px. */
+  font-size: clamp(20px, 5.3vw, 30px);
+  overflow-wrap: normal;
+  hyphens: auto;
+  -webkit-hyphens: auto;
 }
 
 .stepText {
+  max-width: 44ch;
   font-size: clamp(15px, 1.4vw, 19px);
   line-height: 1.55;
   color: var(--c-gray-200);
 }
 
 .note {
+  max-width: 44ch;
   padding-top: 12px;
   border-top: 1px solid var(--line);
   font-size: 12px;
@@ -253,6 +258,11 @@
   .steps {
     grid-column: 3;
     grid-row: 1 / span 2;
+  }
+
+  /* Coluna dos passos ≈ 50% da tela: 10 letras × 1,36 × 3,2vw cabem com folga. */
+  .stepTitle {
+    font-size: clamp(30px, 3.2vw, 64px);
   }
 
   .hint {
