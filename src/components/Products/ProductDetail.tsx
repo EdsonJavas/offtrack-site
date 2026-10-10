@@ -8,23 +8,23 @@ import {
   formatPrice,
   type MeasureKey,
   type Product,
-  type ProductColor,
+  type ProductVariant,
 } from "@/data/mock/products";
 import { lenisStore } from "@/lib/lenis";
 import { Star } from "@/components/ui/Star";
-import { GarmentViewer } from "./GarmentViewer";
+import { PhotoViewer } from "./PhotoViewer";
 import styles from "./ProductDetail.module.css";
 
 interface ProductDetailProps {
   product: Product;
-  initialColor: ProductColor;
+  initialVariant: ProductVariant;
   onClose: () => void;
 }
 
 const TOAST_MS = 2600;
 
-export function ProductDetail({ product, initialColor, onClose }: ProductDetailProps) {
-  const [color, setColor] = useState(initialColor);
+export function ProductDetail({ product, initialVariant, onClose }: ProductDetailProps) {
+  const [variant, setVariant] = useState(initialVariant);
   const [size, setSize] = useState(product.sizes[1] ?? product.sizes[0]);
   const [showMeasures, setShowMeasures] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -55,7 +55,7 @@ export function ProductDetail({ product, initialColor, onClose }: ProductDetailP
 
   /** Copia o pedido pronto e abre o Instagram: o Direct não aceita texto na URL. */
   const order = async () => {
-    const message = `Fala, ${brand.name}! Quero encomendar a ${product.name}, cor ${color.name}, tamanho ${size}. Como funciona?`;
+    const message = `Fala, ${brand.name}! Quero encomendar a ${product.name}, cor ${variant.color}, tamanho ${size}. Como funciona?`;
     try {
       await navigator.clipboard.writeText(message);
       setCopied(true);
@@ -69,15 +69,17 @@ export function ProductDetail({ product, initialColor, onClose }: ProductDetailP
   const measureKeys = Object.keys(measures ?? {}) as MeasureKey[];
 
   // Portal no body: fora da section (que tem z-index próprio), o modal cobre o header fixo.
+  if (typeof document === "undefined") return null;
   return createPortal(
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="product-title">
       <button type="button" className={styles.backdrop} onClick={onClose} aria-label="Fechar" />
 
       <div className={styles.panel}>
         <div className={styles.viewer}>
-          <GarmentViewer
+          <PhotoViewer
+            name={product.name}
             kind={product.kind}
-            color={color.hex}
+            variant={variant}
             measurements={measures}
             showMeasures={showMeasures}
           />
@@ -109,19 +111,19 @@ export function ProductDetail({ product, initialColor, onClose }: ProductDetailP
 
           <div className={styles.block}>
             <p className={styles.label}>
-              Cor <span>{color.name}</span>
+              Cor <span>{variant.color}</span>
             </p>
             <div className={styles.swatches} role="radiogroup" aria-label="Cor">
-              {product.colors.map((c) => (
+              {product.variants.map((v) => (
                 <button
-                  key={c.name}
+                  key={v.color}
                   type="button"
                   role="radio"
-                  aria-checked={c.name === color.name}
-                  aria-label={c.name}
-                  className={`${styles.swatch} ${c.name === color.name ? styles.swatchActive : ""}`}
-                  style={{ "--swatch": c.hex } as React.CSSProperties}
-                  onClick={() => setColor(c)}
+                  aria-checked={v === variant}
+                  aria-label={v.color}
+                  className={`${styles.swatch} ${v === variant ? styles.swatchActive : ""}`}
+                  style={{ "--swatch": v.hex } as React.CSSProperties}
+                  onClick={() => setVariant(v)}
                 />
               ))}
             </div>

@@ -3,7 +3,7 @@
  * Cada peça tem o corpo (frente e costas), costuras e os pontos
  * usados para desenhar as linhas de medida.
  */
-export type GarmentKind = "tee" | "oversized" | "polo" | "shorts";
+export type GarmentKind = "tee" | "oversized" | "polo" | "shorts" | "pants";
 
 export interface MeasureLine {
   key: "chest" | "length" | "sleeve" | "waist";
@@ -110,7 +110,30 @@ const shorts: GarmentGeometry = {
   ],
 };
 
-export const GEOMETRY: Record<GarmentKind, GarmentGeometry> = { tee, oversized, polo, shorts };
+const pantsBody =
+  "M128 40 L272 40 L272 62 L290 250 L300 470 L212 470 L200 210 L188 470 L100 470 L110 250 L128 62 Z";
+
+const pants: GarmentGeometry = {
+  front: pantsBody,
+  back: pantsBody,
+  seams: [
+    "M128 62 L272 62", // cós
+    "M200 62 L200 210", // gancho
+    "M104 458 L188 458", // barra esq.
+    "M212 458 L296 458", // barra dir.
+    "M136 80 L158 130", // bolso esq.
+    "M264 80 L242 130", // bolso dir.
+    "M118 250 L160 262 M240 262 L282 250", // bolsos cargo
+  ],
+  printFront: [262, 400],
+  printBack: [262, 120],
+  measures: [
+    { key: "waist", from: [128, 51], to: [272, 51], label: [0, -10] },
+    { key: "length", from: [330, 40], to: [330, 470], label: [14, 0] },
+  ],
+};
+
+export const GEOMETRY: Record<GarmentKind, GarmentGeometry> = { tee, oversized, polo, shorts, pants };
 
 /** Gola crew/costas: faixa de ribana. */
 export const RIBBING: Partial<Record<GarmentKind, { front: string; back: string }>> = {

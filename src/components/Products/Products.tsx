@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState, type PointerEvent } from "react";
-import { mockProducts, type Product, type ProductColor } from "@/data/mock/products";
+import { mockProducts, type Product, type ProductVariant } from "@/data/mock/products";
 import { useMediaValue } from "@/hooks/useMediaValue";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "./ProductCard";
@@ -10,7 +10,7 @@ import styles from "./Products.module.css";
 
 interface Selection {
   product: Product;
-  color: ProductColor;
+  variant: ProductVariant;
 }
 
 const SWIPE_THRESHOLD = 48;
@@ -26,7 +26,10 @@ export function Products() {
   const [selection, setSelection] = useState<Selection | null>(null);
   const dragStart = useRef<number | null>(null);
 
-  const open = useCallback((product: Product, color: ProductColor) => setSelection({ product, color }), []);
+  const open = useCallback(
+    (product: Product, variant: ProductVariant) => setSelection({ product, variant }),
+    [],
+  );
   const close = useCallback(() => setSelection(null), []);
 
   // Se o breakpoint mudar e houver menos páginas, fica na última válida.
@@ -131,7 +134,7 @@ export function Products() {
         <ProductDetail
           key={selection.product.id}
           product={selection.product}
-          initialColor={selection.color}
+          initialVariant={selection.variant}
           onClose={close}
         />
       )}
