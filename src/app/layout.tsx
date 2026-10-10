@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Syne } from "next/font/google";
 import { SmoothScroll } from "@/components/SmoothScroll/SmoothScroll";
+import { CartProvider } from "@/components/Cart/CartProvider";
+import { CartDrawer } from "@/components/Cart/CartDrawer";
 import { brand } from "@/data/brand";
 import "./globals.css";
 
@@ -29,7 +31,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${syne.variable} ${inter.variable}`}>
       <body>
-        <SmoothScroll>{children}</SmoothScroll>
+        <CartProvider>
+          <SmoothScroll>{children}</SmoothScroll>
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

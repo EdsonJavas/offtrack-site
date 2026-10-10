@@ -2,18 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { brand } from "@/data/brand";
+import { useCart } from "@/components/Cart/CartProvider";
 import { Star } from "@/components/ui/Star";
 import styles from "./Header.module.css";
 
 const links = [
-  { href: "#marca", label: "Marca" },
   { href: "#selecao", label: "Seleção" },
   { href: "#como-funciona", label: "Como funciona" },
+  { href: "#marca", label: "Marca" },
   { href: "#contato", label: "Contato" },
 ];
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const cart = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.8);
@@ -36,15 +38,27 @@ export function Header() {
         ))}
       </nav>
 
-      <a
-        href={brand.instagram.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.instagram}
-      >
-        <Star size={10} />
-        <span>{brand.instagram.handle}</span>
-      </a>
+      <div className={styles.right}>
+        <a
+          href={brand.instagram.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.instagram}
+        >
+          <Star size={10} />
+          <span>{brand.instagram.handle}</span>
+        </a>
+
+        <button
+          type="button"
+          className={`${styles.cart} ${cart.count > 0 ? styles.cartFull : ""}`}
+          onClick={cart.open}
+          aria-label={`Abrir carrinho, ${cart.count} ${cart.count === 1 ? "peça" : "peças"}`}
+        >
+          <span className={styles.cartLabel}>Carrinho</span>
+          <span className={styles.cartCount}>{String(cart.count).padStart(2, "0")}</span>
+        </button>
+      </div>
     </header>
   );
 }
