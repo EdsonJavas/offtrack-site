@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { brand } from "@/data/brand";
 import { useCart } from "@/components/Cart/CartProvider";
@@ -31,7 +32,8 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useModal(menuOpen, menuRef, () => setMenuOpen(false));
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  useModal(menuOpen, menuRef, closeMenu);
 
   return (
     <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
@@ -86,52 +88,55 @@ export function Header() {
         </button>
       </div>
 
-      {/* Menu do celular: tela cheia, links grandes. */}
-      {menuOpen && (
-        <div
-          ref={menuRef}
-          className={styles.menu}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menu"
-          tabIndex={-1}
-        >
-          <button
-            type="button"
-            className={styles.menuClose}
-            onClick={() => setMenuOpen(false)}
-            aria-label="Fechar menu"
+      {/* Menu do celular: tela cheia, links grandes. Vai por portal para o body:
+          dentro do header ele herdaria o mix-blend-mode e o hero vazaria por cima. */}
+      {menuOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            className={styles.menu}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            tabIndex={-1}
           >
-            <span />
-            <span />
-          </button>
-          <nav className={styles.menuNav} aria-label="Seções">
-            {links.map((link, i) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={styles.menuLink}
-                onClick={() => setMenuOpen(false)}
-              >
-                <span className={styles.menuIndex}>0{i + 1}</span>
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <div className={styles.menuFoot}>
-            <a
-              href={brand.instagram.url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              className={styles.menuClose}
+              onClick={closeMenu}
+              aria-label="Fechar menu"
             >
-              <Star size={10} /> {brand.instagram.handle}
-            </a>
-            <p>
-              {brand.city}, {brand.state} · {brand.slogan}
-            </p>
-          </div>
-        </div>
-      )}
+              <span />
+              <span />
+            </button>
+            <nav className={styles.menuNav} aria-label="Seções">
+              {links.map((link, i) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={styles.menuLink}
+                  onClick={closeMenu}
+                >
+                  <span className={styles.menuIndex}>0{i + 1}</span>
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <div className={styles.menuFoot}>
+              <a
+                href={brand.instagram.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Star size={10} /> {brand.instagram.handle}
+              </a>
+              <p>
+                {brand.city}, {brand.state} · {brand.slogan}
+              </p>
+            </div>
+          </div>,
+          document.body,
+        )}
     </header>
   );
 }
