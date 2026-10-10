@@ -22,7 +22,7 @@
 
 .monogram {
   position: relative;
-  padding-right: 0.3em;
+  padding-right: 0.55em;
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 20px;
@@ -32,10 +32,10 @@
 /* A estrela do logo saindo do canto do T, como no logotipo do hero. */
 .monogramStar {
   position: absolute;
-  top: -0.2em;
-  right: -0.08em;
-  width: 0.56em;
-  height: 0.56em;
+  top: 0.08em;
+  right: -0.14em;
+  width: 0.9em;
+  height: 0.9em;
 }
 
 .nav {
