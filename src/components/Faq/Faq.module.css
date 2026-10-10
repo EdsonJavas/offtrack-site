@@ -1,8 +1,9 @@
 .section {
   position: relative;
   z-index: 2;
-  padding-block: var(--section-y);
-  background: var(--c-black);
+  padding-block: clamp(72px, 10vw, 120px);
+  background: var(--c-ink);
+  border-top: 1px solid var(--line);
 }
 
 .grid {

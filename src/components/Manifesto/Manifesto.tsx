@@ -4,67 +4,106 @@ import { useEffect, useRef } from "react";
 import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { brand } from "@/data/brand";
+import { pillars, story } from "@/data/content";
+import { ScrollStage } from "@/components/ScrollStage/ScrollStage";
 import { Star } from "@/components/ui/Star";
 import styles from "./Manifesto.module.css";
 
-const lines = ["Não é só uma loja.", "É uma outra visão", "de streetwear."];
-
-const marqueeItems = [brand.name, brand.slogan, brand.monogram, "Streetwear"];
-
-/** Frase dos stories, palavra por palavra, acendendo conforme o scroll. */
+/**
+ * A marca como uma faixa horizontal: a página rola para baixo e a cena
+ * anda para o lado, painel a painel, da frase dos stories até a origem.
+ */
 export function Manifesto() {
-  const ref = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el || reducedMotion) return;
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    if (!section || !track || reducedMotion) return;
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        `.${styles.word}`,
-        { opacity: 0.12 },
-        {
-          opacity: 1,
-          stagger: 0.08,
-          ease: "none",
-          scrollTrigger: { trigger: el, start: "top 75%", end: "bottom 55%", scrub: true },
+      gsap.to(track, {
+        x: () => -(track.scrollWidth - window.innerWidth),
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.4,
+          invalidateOnRefresh: true,
         },
-      );
-    }, el);
+      });
+
+      // Carimbos batem na tela conforme o painel deles aparece.
+      gsap.utils.toArray<HTMLElement>(`.${styles.stamp}`).forEach((stamp, i) => {
+        gsap.from(stamp, {
+          scale: 1.6,
+          rotate: -12 + i * 8,
+          autoAlpha: 0,
+          ease: "power3.out",
+          duration: 0.6,
+          scrollTrigger: {
+            trigger: section,
+            start: `${52 + i * 6}% bottom`,
+            toggleActions: "play none none reverse",
+          },
+        });
+      });
+    }, section);
 
     return () => ctx.revert();
   }, [reducedMotion]);
 
   return (
-    <section className={styles.section}>
-      <div className={`container ${styles.inner}`} ref={ref}>
-        <p className="eyebrow">Manifesto</p>
-        <h2 className={styles.statement}>
-          {lines.map((line) => (
-            <span key={line} className={styles.line}>
-              {line.split(" ").map((word, i) => (
-                <span key={`${line}-${i}`} className={styles.word}>
-                  {word}
-                </span>
-              ))}
-            </span>
-          ))}
-        </h2>
-      </div>
+    <ScrollStage ref={sectionRef} id="marca" scrollLength={4} className={styles.section}>
+      <div ref={trackRef} className={styles.track}>
+        <article className={`${styles.panel} ${styles.panelOne}`}>
+          <p className="eyebrow">Manifesto</p>
+          <h2 className={styles.big}>
+            Não é só <br />
+            uma loja.
+          </h2>
+          <Star size={28} className={styles.cornerStar} />
+        </article>
 
-      <div className={styles.marquee} aria-hidden="true">
-        <div className={styles.track}>
-          {[0, 1].map((copy) =>
-            marqueeItems.map((item) => (
-              <span key={`${copy}-${item}`} className={styles.item}>
-                {item}
-                <Star size={12} />
-              </span>
-            )),
-          )}
-        </div>
+        <article className={`${styles.panel} ${styles.panelTwo}`}>
+          <h2 className={styles.big}>
+            É uma outra visão <span>de streetwear.</span>
+          </h2>
+          <p className={styles.lead}>
+            Roupa é extensão da personalidade de quem veste. Seleção alinhada ao estilo urbano,
+            identidade visual marcante e atendimento próximo.
+          </p>
+        </article>
+
+        <article className={`${styles.panel} ${styles.panelThree}`}>
+          <p className="eyebrow">Os três pilares</p>
+          <div className={styles.stamps}>
+            {pillars.map((pillar, i) => (
+              <div key={pillar.title} className={styles.stamp}>
+                <span className={styles.stampIndex}>0{i + 1}</span>
+                <h3 className={styles.stampTitle}>{pillar.title}</h3>
+                <p className={styles.stampText}>{pillar.text}</p>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className={`${styles.panel} ${styles.panelFour}`}>
+          <p className={styles.year}>{brand.foundedYear}</p>
+          <div className={styles.origin}>
+            <p className="eyebrow">
+              {brand.city}, {brand.state}
+            </p>
+            <h2 className={styles.originTitle}>
+              A coragem de tirar <span>um sonho do papel.</span>
+            </h2>
+            <p className={styles.originText}>{story}</p>
+          </div>
+        </article>
       </div>
-    </section>
+    </ScrollStage>
   );
 }
