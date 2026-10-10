@@ -28,5 +28,20 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     };
   }, [reducedMotion]);
 
+  // A altura da página muda depois da hidratação (paginação, fontes, imagens):
+  // recalcula os gatilhos do ScrollTrigger sempre que o body mudar de tamanho.
+  useEffect(() => {
+    let timer = 0;
+    const observer = new ResizeObserver(() => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => ScrollTrigger.refresh(), 120);
+    });
+    observer.observe(document.body);
+    return () => {
+      window.clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, []);
+
   return <>{children}</>;
 }
