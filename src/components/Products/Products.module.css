@@ -13,8 +13,8 @@
 }
 
 .title {
-  font-size: clamp(40px, 7.2vw, 120px);
-  line-height: 0.9;
+  font-size: clamp(30px, 3.8vw, 56px);
+  line-height: 0.95;
 }
 
 .title span {

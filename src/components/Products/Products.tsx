@@ -34,9 +34,9 @@ const filters: Filter[] = [
 export function Products() {
   const perPage = useMediaValue(
     [
-      { minWidth: 640, value: 2 },
-      { minWidth: 1000, value: 3 },
-      { minWidth: 1300, value: 4 },
+      { minWidth: 700, value: 2 },
+      { minWidth: 1100, value: 3 },
+      { minWidth: 1500, value: 4 },
     ],
     1,
   );

@@ -18,10 +18,7 @@ interface ProductCardProps {
   onOpen: (product: Product, variant: ProductVariant) => void;
 }
 
-/**
- * Card compacto: foto com compra rápida no hover (tamanho + adicionar),
- * favoritar, troca de cor e preço. Clique na foto abre a peça.
- */
+/** Card completo: foto com preço, favorito, cor, tamanho e adicionar ao carrinho. */
 export function ProductCard({ product, index, onOpen }: ProductCardProps) {
   const [variant, setVariant] = useState(product.variants[0]);
   const [size, setSize] = useState<string | null>(null);
@@ -58,12 +55,15 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
                 v === variant ? `${product.name}, ${v.color.toLowerCase()}` : ""
               }
               fill
-              sizes="(min-width: 1300px) 25vw, (min-width: 1000px) 33vw, (min-width: 640px) 50vw, 100vw"
+              sizes="(min-width: 1500px) 25vw, (min-width: 1100px) 33vw, (min-width: 700px) 50vw, 100vw"
               priority={index < 4 && v === product.variants[0]}
               className={`${styles.photo} ${v === variant ? styles.photoActive : ""}`}
               style={{ objectPosition: v.position ?? "50% 50%" }}
             />
           ))}
+          <span className={styles.hint}>
+            Ver peça <Star size={10} />
+          </span>
         </button>
 
         <div className={styles.top}>
@@ -82,35 +82,17 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
           </button>
         </div>
 
-        {/* Compra rápida: aparece no hover (desktop) e fica fixa no toque. */}
-        <div className={`${styles.quick} ${nudge ? styles.nudge : ""}`}>
-          <div className={styles.sizes} role="radiogroup" aria-label="Tamanho">
-            {product.sizes.map((s) => (
-              <button
-                key={s}
-                type="button"
-                role="radio"
-                aria-checked={s === size}
-                className={`${styles.size} ${s === size ? styles.sizeActive : ""}`}
-                onClick={() => setSize(s === size ? null : s)}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-          <button type="button" className={styles.add} onClick={add}>
-            {size ? `Adicionar · ${size}` : "Escolha o tamanho"}
-            <span aria-hidden="true">+</span>
-          </button>
-        </div>
+        <span className={styles.priceTag}>
+          <span className={styles.priceLabel}>Sob encomenda</span>
+          <span className={styles.price}>{formatPrice(product.price)}</span>
+        </span>
       </div>
 
       <div className={styles.body}>
+        <h3 className={styles.name}>{product.name}</h3>
+
         <div className={styles.row}>
-          <h3 className={styles.name}>{product.name}</h3>
-          <p className={styles.price}>{formatPrice(product.price)}</p>
-        </div>
-        <div className={styles.row}>
+          <span className={styles.label}>Cor</span>
           <div className={styles.swatches} role="radiogroup" aria-label="Cor">
             {product.variants.map((v) => (
               <button
@@ -126,11 +108,33 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
               />
             ))}
           </div>
-          <span className={styles.meta}>
-            {variant.color} · {product.sizes[0]}–
-            {product.sizes[product.sizes.length - 1]}
-          </span>
+          <span className={styles.value}>{variant.color}</span>
         </div>
+
+        <div className={`${styles.row} ${nudge ? styles.nudge : ""}`}>
+          <span className={styles.label}>Tam.</span>
+          <div className={styles.sizes} role="radiogroup" aria-label="Tamanho">
+            {product.sizes.map((s) => (
+              <button
+                key={s}
+                type="button"
+                role="radio"
+                aria-checked={s === size}
+                className={`${styles.size} ${s === size ? styles.sizeActive : ""}`}
+                onClick={() => setSize(s === size ? null : s)}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button type="button" className={styles.add} onClick={add}>
+          <span>{size ? `Adicionar · ${size}` : "Escolha o tamanho"}</span>
+          <span className={styles.addIcon} aria-hidden="true">
+            +
+          </span>
+        </button>
       </div>
     </article>
   );
