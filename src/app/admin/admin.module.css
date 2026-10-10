@@ -1,6 +1,6 @@
 /* Painel do dono: funcional, no escuro da marca, sem efeitos. */
 .shell {
-  width: min(960px, 100% - 2 * var(--gutter));
+  width: min(1200px, 100% - 2 * var(--gutter));
   margin-inline: auto;
   padding: 40px 0 80px;
 }
