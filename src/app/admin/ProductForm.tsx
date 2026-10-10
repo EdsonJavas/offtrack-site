@@ -13,7 +13,6 @@ import Link from "next/link";
 import { upload } from "@vercel/blob/client";
 import {
   CATEGORIES,
-  CATEGORY_KIND,
   MEASURE_LABELS,
   measuresFor,
   type Product,
@@ -66,8 +65,8 @@ const PALETTE: [string, string][] = [
   ["Vermelho", "#a1282a"],
 ];
 
-const SIZES_TOP = ["PP", "P", "M", "G", "GG", "XGG"];
-const SIZES_BOTTOM = ["36", "38", "40", "42", "44", "46", "48"];
+/** Grade da loja é por letra em todas as peças; número entra por "Outro" se precisar. */
+const SIZE_PRESETS = ["PP", "P", "M", "G", "GG", "XGG"];
 
 const BADGES: Array<[Product["badge"] | "", string]> = [
   ["", "Sem selo"],
@@ -147,10 +146,8 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
   const mainHolders = useRef<(HTMLInputElement | null)[]>([]);
   const extraHolders = useRef<(HTMLInputElement | null)[]>([]);
 
-  const kind = CATEGORY_KIND[category];
   const measureKeys = measuresFor(category);
-  const sizePresets =
-    kind === "shorts" || kind === "pants" ? SIZES_BOTTOM : SIZES_TOP;
+  const sizePresets = SIZE_PRESETS;
   const priceCents = parsePrice(price);
   // Linhas da tabela de medidas: tamanhos da peça + os próprios de cada cor.
   const allSizes = [
