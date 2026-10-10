@@ -61,20 +61,22 @@ export function Hero() {
         .to(`.${styles.lineTwo}`, { yPercent: 0, duration: 0.45 }, 0.8)
         .to(`.${styles.tag}`, { opacity: 1, y: 0, duration: 0.3 }, 1.15);
 
-      // Enquanto a Seleção sobe por cima, a cena recua e escurece: resposta imediata ao scroll.
+      // Enquanto a Seleção sobe por cima, a cena recua e uma camada escurece por cima:
+      // resposta imediata ao scroll. (Não mexe na opacity do overlay, que o loader controla.)
+      const coverTrigger = {
+        trigger: section,
+        start: () => `bottom-=${OVERLAP_NEXT * window.innerHeight} bottom`,
+        end: () => `bottom-=${window.innerHeight} bottom`,
+        invalidateOnRefresh: true,
+        scrub: 0.3,
+      };
       gsap.to([overlay, section.querySelector("canvas")], {
         yPercent: -6,
         scale: 0.96,
-        opacity: 0.25,
         ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: () => `bottom-=${OVERLAP_NEXT * window.innerHeight} bottom`,
-          end: () => `bottom-=${window.innerHeight} bottom`,
-          invalidateOnRefresh: true,
-          scrub: 0.3,
-        },
+        scrollTrigger: coverTrigger,
       });
+      gsap.to(`.${styles.dim}`, { opacity: 0.75, ease: "none", scrollTrigger: coverTrigger });
     }, section);
 
     ScrollTrigger.refresh();
@@ -121,6 +123,8 @@ export function Hero() {
           Role para entrar
         </p>
       </div>
+
+      <div className={styles.dim} aria-hidden="true" />
 
       <div className={`${styles.loader} ${ready ? styles.loaderDone : ""}`} aria-hidden={ready}>
         <span className={styles.loaderText}>Aguardem.</span>

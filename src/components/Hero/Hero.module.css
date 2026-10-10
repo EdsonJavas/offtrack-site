@@ -144,6 +144,15 @@
   }
 }
 
+/* Escurece a cena enquanto a próxima seção cobre (opacity controlada pelo GSAP). */
+.dim {
+  position: absolute;
+  inset: 0;
+  background: var(--c-black);
+  opacity: 0;
+  pointer-events: none;
+}
+
 .loader {
   position: absolute;
   inset: 0;
