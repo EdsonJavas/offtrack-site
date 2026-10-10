@@ -8,6 +8,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Painel local (sem Blob): as fotos vão no próprio formulário.
+  experimental: { serverActions: { bodySizeLimit: "20mb" } },
   images: {
     remotePatterns: [
       // Fotos cadastradas no painel (Vercel Blob).

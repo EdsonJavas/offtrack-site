@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import type { Product, ProductVariant } from "@/data/types";
+import { sizesOf, type Product, type ProductVariant } from "@/data/types";
 import { formatPrice } from "@/lib/format";
 import { flyToCart } from "@/lib/flyToCart";
 import { useCart } from "@/components/Cart/CartProvider";
@@ -107,7 +107,11 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
                 title={v.color}
                 className={`${styles.swatch} ${v === variant ? styles.swatchActive : ""}`}
                 style={{ "--swatch": v.hex } as React.CSSProperties}
-                onClick={() => setVariant(v)}
+                onClick={() => {
+                  setVariant(v);
+                  // Tamanho que não existe na cor nova volta a pedir escolha.
+                  setSize((s) => (s && !sizesOf(product, v).includes(s) ? null : s));
+                }}
               />
             ))}
           </div>
@@ -117,7 +121,7 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
         <div className={`${styles.row} ${nudge ? styles.nudge : ""}`}>
           <span className={styles.label}>Tam.</span>
           <div className={styles.sizes}>
-            {product.sizes.map((s) => (
+            {sizesOf(product, variant).map((s) => (
               <button
                 key={s}
                 type="button"

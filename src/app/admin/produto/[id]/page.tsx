@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { isAuthenticated } from "@/lib/adminAuth";
-import { getAllProducts } from "@/lib/catalog";
+import { getAllProducts, usesBlobStorage } from "@/lib/catalog";
 import { ProductForm } from "../../ProductForm";
 import styles from "../../admin.module.css";
 
@@ -22,7 +22,10 @@ export default async function ProductEditPage({
 
   return (
     <main className={styles.shell}>
-      <ProductForm product={product ?? null} />
+      <ProductForm
+        product={product ?? null}
+        uploadMode={usesBlobStorage() ? "blob" : "local"}
+      />
     </main>
   );
 }

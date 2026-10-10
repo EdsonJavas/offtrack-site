@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Product, ProductVariant } from "@/data/types";
+import { sizesOf, type Product, type ProductVariant } from "@/data/types";
 
 export interface CartItem {
   /** productId + cor + tamanho. */
@@ -72,7 +72,7 @@ function reconcile(items: CartItem[], catalog: Product[]): CartItem[] {
     const variant =
       product.variants.find((v) => v.color === item.color) ??
       product.variants[0];
-    if (!product.sizes.includes(item.size)) return [];
+    if (!sizesOf(product, variant).includes(item.size)) return [];
     return [
       {
         ...item,

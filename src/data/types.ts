@@ -7,6 +7,7 @@ export const CATEGORIES = [
   "Polo",
   "Bermuda",
   "Calça",
+  "Conjunto",
 ] as const;
 export type ProductCategory = (typeof CATEGORIES)[number];
 
@@ -17,6 +18,8 @@ export const CATEGORY_KIND: Record<ProductCategory, GarmentKind> = {
   Polo: "polo",
   Bermuda: "shorts",
   Calça: "pants",
+  // Conjunto (parte de cima + de baixo): esquema da peça de cima; medidas das duas.
+  Conjunto: "oversized",
 };
 
 export type MeasureKey = "chest" | "length" | "sleeve" | "waist";
@@ -37,9 +40,22 @@ export const MEASURES_BY_KIND: Record<GarmentKind, MeasureKey[]> = {
   pants: ["waist", "length"],
 };
 
+/** Medidas pedidas no painel para uma categoria (o Conjunto soma a cintura). */
+export function measuresFor(category: ProductCategory): MeasureKey[] {
+  const base = MEASURES_BY_KIND[CATEGORY_KIND[category]];
+  return category === "Conjunto" ? [...base, "waist"] : base;
+}
+
+/** Tamanhos de uma cor: os próprios dela, se tiver, senão os da peça. */
+export function sizesOf(product: Pick<Product, "sizes">, variant: ProductVariant) {
+  return variant.sizes && variant.sizes.length > 0 ? variant.sizes : product.sizes;
+}
+
 export interface ProductVariant {
   color: string;
   hex: string;
+  /** Tamanhos só desta cor (quando diferem dos da peça). */
+  sizes?: string[];
   /** URL da foto (Blob em produção, /uploads em dev, ou exemplo). */
   image: string;
   /** `object-position` para enquadrar a peça na foto. */

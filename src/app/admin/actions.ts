@@ -13,8 +13,7 @@ import {
 import { parsePrice } from "@/lib/format";
 import {
   CATEGORIES,
-  CATEGORY_KIND,
-  MEASURES_BY_KIND,
+  measuresFor,
   type MeasureKey,
   type Product,
   type ProductCategory,
@@ -105,21 +104,29 @@ export async function saveProductAction(
       extras.push(await saveImage(extra));
     }
 
+    // Tamanhos só desta cor (opcional).
+    const variantSizes = String(formData.get(`variant[${i}][sizes]`) ?? "")
+      .split(/[,\s]+/)
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean);
+
     variants.push({
       color,
       hex,
       image,
       position,
       ...(extras.length > 0 ? { images: extras } : {}),
+      ...(variantSizes.length > 0 ? { sizes: variantSizes } : {}),
     });
   }
   if (variants.length === 0)
     return { error: "Cadastre ao menos uma cor com foto." };
 
-  // Medidas por tamanho, só as que fazem sentido para a silhueta.
-  const keys: MeasureKey[] = MEASURES_BY_KIND[CATEGORY_KIND[category]];
+  // Medidas por tamanho (os da peça + os próprios de cada cor), só as da silhueta.
+  const keys: MeasureKey[] = measuresFor(category);
   const measurements: Product["measurements"] = {};
-  for (const size of sizes) {
+  const allSizes = [...new Set([...sizes, ...variants.flatMap((v) => v.sizes ?? [])])];
+  for (const size of allSizes) {
     const entry: Partial<Record<MeasureKey, number>> = {};
     for (const key of keys) {
       const value = Number(

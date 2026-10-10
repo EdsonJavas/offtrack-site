@@ -7,6 +7,7 @@ import { brand } from "@/data/brand";
 import {
   CATEGORY_KIND,
   MEASURE_LABELS,
+  sizesOf,
   type MeasureKey,
   type Product,
   type ProductVariant,
@@ -40,6 +41,8 @@ export function ProductDetail({
   const setVariant = (v: ProductVariant) => {
     setVariantState(v);
     setPhoto(0);
+    // Tamanho escolhido que não existe nesta cor: volta a pedir.
+    setSize((s) => (s && !sizesOf(product, v).includes(s) ? null : s));
   };
   const [size, setSize] = useState<string | null>(null);
   const [showMeasures, setShowMeasures] = useState(false);
@@ -94,7 +97,8 @@ export function ProductDetail({
   };
 
   const kind = CATEGORY_KIND[product.category];
-  const measureSize = size ?? product.sizes[0];
+  const sizes = sizesOf(product, variant);
+  const measureSize = size ?? sizes[0];
   const measures = product.measurements[measureSize];
   const measureKeys = Object.keys(measures ?? {}) as MeasureKey[];
   const { deposit, balance } = splitDeposit(product.priceCents);
@@ -296,7 +300,7 @@ export function ProductDetail({
                   Tamanho <span>{size ?? "escolha"}</span>
                 </p>
                 <div className={styles.sizes}>
-                  {product.sizes.map((s) => (
+                  {sizes.map((s) => (
                     <button
                       key={s}
                       type="button"

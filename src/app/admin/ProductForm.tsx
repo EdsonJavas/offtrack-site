@@ -1,18 +1,21 @@
 "use client";
 
 import {
+  startTransition,
   useActionState,
   useCallback,
   useEffect,
   useRef,
   useState,
+  type FormEvent,
 } from "react";
 import Link from "next/link";
+import { upload } from "@vercel/blob/client";
 import {
   CATEGORIES,
   CATEGORY_KIND,
-  MEASURES_BY_KIND,
   MEASURE_LABELS,
+  measuresFor,
   type Product,
   type ProductCategory,
 } from "@/data/types";
@@ -37,6 +40,14 @@ interface VariantDraft {
   main: PhotoDraft | null;
   /** Extras da galeria. */
   extras: PhotoDraft[];
+  /** Tamanhos só desta cor; null = os mesmos da peça. */
+  sizes: string[] | null;
+}
+
+interface ProductFormProps {
+  product: Product | null;
+  /** Em produção (Blob) as fotos sobem direto do navegador; local vão no formulário. */
+  uploadMode: "blob" | "local";
 }
 
 /** Tons mais comuns das peças; o dono também pode escolher outro. */
@@ -69,6 +80,7 @@ const emptyVariant = (): VariantDraft => ({
   hex: "#141414",
   main: null,
   extras: [],
+  sizes: null,
 });
 
 /** Onde a foto editada vai parar. */
@@ -94,11 +106,14 @@ function fileList(files: File[]): FileList {
  * (igual ao da loja) atualizando ao vivo ao lado. Fotos passam pelo editor
  * uma a uma, inclusive quando o dono escolhe várias de uma vez.
  */
-export function ProductForm({ product }: { product: Product | null }) {
+export function ProductForm({ product, uploadMode }: ProductFormProps) {
   const [state, action, pending] = useActionState<ActionState, FormData>(
     saveProductAction,
     {},
   );
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [stateAtSubmit, setStateAtSubmit] = useState<ActionState | null>(null);
 
   const [name, setName] = useState(product?.name ?? "");
   const [category, setCategory] = useState<ProductCategory>(
@@ -121,6 +136,7 @@ export function ProductForm({ product }: { product: Product | null }) {
       hex: v.hex,
       main: { url: v.image, preview: v.image },
       extras: (v.images ?? []).map((url) => ({ url, preview: url })),
+      sizes: v.sizes && v.sizes.length > 0 ? v.sizes : null,
     })) ?? [emptyVariant()],
   );
   const [activeVariant, setActiveVariant] = useState(0);
@@ -132,10 +148,65 @@ export function ProductForm({ product }: { product: Product | null }) {
   const extraHolders = useRef<(HTMLInputElement | null)[]>([]);
 
   const kind = CATEGORY_KIND[category];
-  const measureKeys = MEASURES_BY_KIND[kind];
+  const measureKeys = measuresFor(category);
   const sizePresets =
     kind === "shorts" || kind === "pants" ? SIZES_BOTTOM : SIZES_TOP;
   const priceCents = parsePrice(price);
+  // Linhas da tabela de medidas: tamanhos da peça + os próprios de cada cor.
+  const allSizes = [
+    ...new Set([...sizes, ...variants.flatMap((v) => v.sizes ?? [])]),
+  ];
+
+  /**
+   * Envio. Em produção as fotos novas sobem direto para o Blob (sem passar
+   * pela função do servidor, que tem limite de tamanho) e só as URLs vão no
+   * formulário. Local: o formulário leva os arquivos.
+   */
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    if (uploadMode !== "blob") return; // envio normal (server action)
+    e.preventDefault();
+    const form = e.currentTarget;
+    setUploadError(null);
+    setStateAtSubmit(state);
+    try {
+      const fd = new FormData(form);
+      const total = variants.reduce(
+        (n, v) => n + (v.main?.file ? 1 : 0) + v.extras.filter((p) => p.file).length,
+        0,
+      );
+      let done = 0;
+      const send = async (file: File) => {
+        done += 1;
+        setUploading(`Enviando foto ${done}/${total}…`);
+        const blob = await upload(`fotos/${file.name}`, file, {
+          access: "public",
+          handleUploadUrl: "/admin/upload",
+          contentType: file.type || "image/jpeg",
+        });
+        return blob.url;
+      };
+      for (let i = 0; i < variants.length; i++) {
+        const v = variants[i];
+        const mainUrl = v.main?.file ? await send(v.main.file) : v.main?.url ?? "";
+        const extraUrls: string[] = [];
+        for (const p of v.extras) extraUrls.push(p.file ? await send(p.file) : p.url ?? "");
+        fd.set(`variant[${i}][image]`, mainUrl);
+        fd.set(`variant[${i}][images]`, JSON.stringify(extraUrls.filter(Boolean)));
+        fd.delete(`variant[${i}][file]`);
+        fd.delete(`variant[${i}][extraFiles]`);
+      }
+      setUploading(total > 0 ? "Fotos enviadas. Salvando…" : "Salvando…");
+      startTransition(() => action(fd));
+    } catch (err) {
+      setUploading(null);
+      setUploadError(
+        err instanceof Error ? `Falha ao enviar foto: ${err.message}` : "Falha ao enviar foto.",
+      );
+    }
+  };
+
+  // "Enviando…" vale até o servidor responder (novo `state`): aí a barra libera.
+  const busy = uploading !== null && state === stateAtSubmit;
 
   // Os campos de arquivo que vão no envio seguem o estado (DataTransfer).
   useEffect(() => {
@@ -275,7 +346,7 @@ export function ProductForm({ product }: { product: Product | null }) {
   );
 
   return (
-    <form action={action} className={styles.form}>
+    <form action={action} onSubmit={onSubmit} className={styles.form}>
       {product && <input type="hidden" name="id" value={product.id} />}
       <input type="hidden" name="category" value={category} />
       <input type="hidden" name="badge" value={badge} />
@@ -631,6 +702,51 @@ export function ProductForm({ product }: { product: Product | null }) {
                     </div>
                   </div>
 
+                  {/* Tamanhos só desta cor (opcional). */}
+                  <div className={styles.variantSizes}>
+                    <input
+                      type="hidden"
+                      name={`variant[${i}][sizes]`}
+                      value={v.sizes ? v.sizes.join(", ") : ""}
+                    />
+                    <label className={styles.miniToggle}>
+                      <input
+                        type="checkbox"
+                        checked={v.sizes !== null}
+                        onChange={(e) =>
+                          updateVariant(i, { sizes: e.target.checked ? [...sizes] : null })
+                        }
+                      />
+                      <span aria-hidden="true" />
+                      <span>
+                        {v.sizes
+                          ? "Tamanhos próprios desta cor"
+                          : "Mesmos tamanhos da peça"}
+                      </span>
+                    </label>
+                    {v.sizes && (
+                      <div className={styles.chips}>
+                        {[...new Set([...sizePresets, ...sizes, ...v.sizes])].map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            aria-pressed={v.sizes!.includes(s)}
+                            className={`${styles.chip} ${styles.chipSize} ${v.sizes!.includes(s) ? styles.chipOn : ""}`}
+                            onClick={() =>
+                              updateVariant(i, {
+                                sizes: v.sizes!.includes(s)
+                                  ? v.sizes!.filter((x) => x !== s)
+                                  : [...v.sizes!, s],
+                              })
+                            }
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   {variants.length > 1 && (
                     <button
                       type="button"
@@ -705,7 +821,7 @@ export function ProductForm({ product }: { product: Product | null }) {
               </div>
             </div>
 
-            {sizes.length > 0 && (
+            {allSizes.length > 0 && (
               <div className={styles.measures}>
                 <div
                   className={styles.measuresGrid}
@@ -717,7 +833,7 @@ export function ProductForm({ product }: { product: Product | null }) {
                       {MEASURE_LABELS[k]}
                     </span>
                   ))}
-                  {sizes.map((size) => (
+                  {allSizes.map((size) => (
                     <div key={size} className={styles.measuresRow}>
                       <span className={styles.measuresSize}>{size}</span>
                       {measureKeys.map((k) => (
@@ -813,8 +929,8 @@ export function ProductForm({ product }: { product: Product | null }) {
                 <div className={styles.cardRow}>
                   <span>Tam.</span>
                   <div className={styles.cardSizes}>
-                    {sizes.length > 0 ? (
-                      sizes.map((s) => <span key={s}>{s}</span>)
+                    {(preview?.sizes ?? sizes).length > 0 ? (
+                      (preview?.sizes ?? sizes).map((s) => <span key={s}>{s}</span>)
                     ) : (
                       <em>escolha os tamanhos</em>
                     )}
@@ -836,8 +952,10 @@ export function ProductForm({ product }: { product: Product | null }) {
 
       {/* ---- Barra fixa ---- */}
       <div className={styles.bar}>
-        {state.error ? (
-          <p className={styles.barError}>{state.error}</p>
+        {uploadError || state.error ? (
+          <p className={styles.barError}>{uploadError ?? state.error}</p>
+        ) : busy ? (
+          <p className={styles.barInfo}>{uploading}</p>
         ) : (
           <p className={styles.barInfo}>
             {photoCount} {photoCount === 1 ? "foto" : "fotos"} ·{" "}
@@ -849,8 +967,16 @@ export function ProductForm({ product }: { product: Product | null }) {
           <Link href="/admin" className={admin.ghost}>
             Cancelar
           </Link>
-          <button type="submit" className={styles.save} disabled={pending}>
-            {pending ? "Salvando…" : product ? "Salvar alterações" : "Publicar peça"}
+          <button
+            type="submit"
+            className={styles.save}
+            disabled={pending || busy}
+          >
+            {pending || busy
+              ? "Salvando…"
+              : product
+                ? "Salvar alterações"
+                : "Publicar peça"}
             <Star size={10} />
           </button>
         </div>

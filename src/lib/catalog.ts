@@ -18,6 +18,9 @@ const TAG = "catalog";
 
 const hasBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
+/** Produção (Blob): o painel sobe as fotos direto do navegador. */
+export const usesBlobStorage = hasBlob;
+
 async function readCatalog(): Promise<Catalog | null> {
   if (hasBlob()) {
     const { list } = await import("@vercel/blob");
