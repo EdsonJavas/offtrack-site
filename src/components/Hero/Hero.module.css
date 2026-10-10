@@ -1,0 +1,168 @@
+.hero {
+  z-index: 1;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out);
+  pointer-events: none;
+}
+
+.overlayReady {
+  opacity: 1;
+}
+
+.intro,
+.slogan {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+
+.wordmark {
+  font-size: clamp(48px, 11.5vw, 190px);
+  letter-spacing: -0.03em;
+  will-change: transform, opacity;
+}
+
+.sub {
+  margin-top: 12px;
+  font-size: 11px;
+  letter-spacing: 0.6em;
+  text-transform: uppercase;
+  color: var(--c-gray-200);
+}
+
+.slogan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(30px, 6.4vw, 100px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+/* Posição inicial (escondida pela máscara) vem do GSAP, não do CSS:
+   um transform em px no CSS fica em cache e anula o yPercent da animação. */
+.lineOne,
+.lineTwo {
+  display: block;
+  will-change: transform;
+}
+
+.lineTwo {
+  color: var(--c-silver);
+}
+
+.tag {
+  margin-top: 28px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  opacity: 0;
+}
+
+/* Sem animação (prefers-reduced-motion): mostra o slogan parado. */
+.static .intro,
+.static .hint {
+  display: none;
+}
+
+.static .tag {
+  opacity: 1;
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.hintLine {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--c-white));
+  animation: hintPulse 1.8s var(--ease-out) infinite;
+}
+
+@keyframes hintPulse {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  51% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+.loader {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 20px;
+  background: var(--c-black);
+  transition: opacity 700ms var(--ease-out), visibility 0s 700ms;
+}
+
+.loaderDone {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loaderText {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(28px, 6vw, 56px);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.loaderBar {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+
+.loaderFill {
+  display: block;
+  height: 100%;
+  background: var(--c-white);
+  transform-origin: left;
+  transition: transform 200ms linear;
+}

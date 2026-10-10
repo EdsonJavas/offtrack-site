@@ -1,34 +1,72 @@
+/* Tokens da marca OFFTRACK: preto, branco, cinzas e prata pontual. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --c-black: #0a0a0a;
+  --c-ink: #111111;
+  --c-graphite: #1a1a1a;
+  --c-gray-800: #242424;
+  --c-gray-600: #4a4a4a;
+  --c-gray-400: #8a8a8a;
+  --c-gray-200: #c4c4c4;
+  --c-silver: #d6d6d6;
+  --c-white: #f4f4f2;
+
+  --bg: var(--c-black);
+  --fg: var(--c-white);
+  --fg-muted: var(--c-gray-400);
+  --line: rgba(244, 244, 242, 0.12);
+  --line-strong: rgba(244, 244, 242, 0.32);
+
+  --font-display: var(--font-syne), "Arial Black", sans-serif;
+  --font-body: var(--font-inter), Arial, Helvetica, sans-serif;
+
+  --gutter: 20px;
+  --container: 1280px;
+  --section-y: clamp(96px, 14vw, 180px);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 600ms;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (min-width: 768px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --gutter: 40px;
   }
 }
 
 html {
-  height: 100%;
+  color-scheme: dark;
+  scroll-behavior: auto;
 }
 
+/* `clip` em vez de `hidden`: `hidden` vira scroll container e quebra o sticky. */
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Grão fino sobre a página inteira: lembra concreto e papel, sem pesar. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
 }
 
 * {
@@ -42,8 +80,61 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+::selection {
+  background: var(--c-white);
+  color: var(--c-black);
+}
+
+/* Utilitários compartilhados entre seções. */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

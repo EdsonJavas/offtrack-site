@@ -1,0 +1,55 @@
+.footer {
+  position: relative;
+  z-index: 2;
+  padding-block: 48px 32px;
+  background: var(--c-black);
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.inner {
+  display: grid;
+  gap: 24px;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(64px, 19vw, 300px);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--c-gray-600);
+  user-select: none;
+}
+
+.row {
+  display: grid;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.slogan {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.meta {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--fg-muted);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: 1fr auto auto;
+    gap: 32px;
+    align-items: center;
+  }
+}
