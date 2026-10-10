@@ -9,6 +9,11 @@ interface FrameSequenceProps {
   source: FrameSource;
   /** Altura da seção em viewports: define quanto scroll a sequência ocupa. */
   scrollLength?: number;
+  /**
+   * Viewports no fim da seção que a próxima seção cobre (ela sobe por cima do palco).
+   * A sequência termina antes dessa faixa, para não animar escondida.
+   */
+  overlapNext?: number;
   onLoadProgress?: LoadProgress;
   onReady?: () => void;
   /** Conteúdo sobreposto ao canvas, dentro do palco fixo. */
@@ -26,6 +31,7 @@ const MAX_DPR = 2;
 export function FrameSequence({
   source,
   scrollLength = 3,
+  overlapNext = 0,
   onLoadProgress,
   onReady,
   children,
@@ -81,7 +87,8 @@ export function FrameSequence({
     const trigger = ScrollTrigger.create({
       trigger: section,
       start: "top top",
-      end: "bottom bottom",
+      end: () => `bottom-=${overlapNext * window.innerHeight} bottom`,
+      invalidateOnRefresh: true,
       onUpdate: (self) => {
         progress = self.progress;
         scheduleRender();
@@ -104,7 +111,7 @@ export function FrameSequence({
       trigger.kill();
       renderer.dispose();
     };
-  }, [source]);
+  }, [source, overlapNext]);
 
   const setRefs = (node: HTMLElement | null) => {
     sectionRef.current = node;

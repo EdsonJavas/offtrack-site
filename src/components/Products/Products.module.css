@@ -1,9 +1,13 @@
-/* Catálogo: conteúdo perto das margens, título grande colado na grade. */
+/* Catálogo: conteúdo perto das margens, título colado na grade.
+   Sobe por cima do último viewport do hero (margem negativa), como uma folha. */
 .section {
   position: relative;
   z-index: 2;
-  padding: clamp(96px, 12vw, 150px) var(--gutter) clamp(80px, 10vw, 120px);
+  margin-top: -100svh;
+  padding: clamp(80px, 9vw, 120px) var(--gutter) clamp(80px, 10vw, 120px);
   background: var(--c-black);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -40px 80px rgba(0, 0, 0, 0.55);
 }
 
 .head {

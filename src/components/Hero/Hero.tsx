@@ -14,6 +14,13 @@ const heroSource = createProceduralSequence(drawHeroPlaceholder);
 
 const [sloganLineOne, sloganLineTwo] = brand.slogan.split(", ");
 
+/**
+ * Viewports do fim do hero que a próxima seção cobre (ver Products.module.css).
+ * O palco fica preso até faltar 1 viewport para o fim da seção; com 2 de folga,
+ * a Seleção sobe por cima do palco ainda parado durante 1 viewport inteiro.
+ */
+const OVERLAP_NEXT = 2;
+
 /** Primeira tela: a sequência de frames comandada pelo scroll. */
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -37,7 +44,9 @@ export function Hero() {
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          end: "bottom bottom",
+          // A Seleção cobre o último viewport do hero: a animação termina antes.
+          end: () => `bottom-=${OVERLAP_NEXT * window.innerHeight} bottom`,
+          invalidateOnRefresh: true,
           scrub: 0.6,
         },
       });
@@ -60,7 +69,8 @@ export function Hero() {
     <FrameSequence
       ref={sectionRef}
       source={heroSource}
-      scrollLength={3.2}
+      scrollLength={4.4}
+      overlapNext={OVERLAP_NEXT}
       onLoadProgress={(loaded, total) => setLoadRatio(loaded / total)}
       onReady={() => setReady(true)}
       className={styles.hero}
