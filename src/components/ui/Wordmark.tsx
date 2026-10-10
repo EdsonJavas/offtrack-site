@@ -1,4 +1,5 @@
 import { brand } from "@/data/brand";
+import { Star } from "./Star";
 import styles from "./Wordmark.module.css";
 
 interface WordmarkProps {
@@ -19,15 +20,8 @@ export function Wordmark({ className, hollow = false }: WordmarkProps) {
     >
       <span className={styles.text}>{brand.name}</span>
 
-      {/* Estrela esguia: a ponta vertical é mais longa que a horizontal, como no logo. */}
-      <svg
-        className={styles.star}
-        viewBox="0 0 14 24"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path d="M7 0c.35 8.2 1.9 10.9 7 12-5.1 1.1-6.65 3.8-7 12-.35-8.2-1.9-10.9-7-12 5.1-1.1 6.65-3.8 7-12z" />
-      </svg>
+      {/* A mesma estrela usada no resto do site, em tamanho de logo. */}
+      <Star className={styles.star} />
 
       <svg className={styles.reg} viewBox="0 0 24 24" aria-hidden="true">
         <circle

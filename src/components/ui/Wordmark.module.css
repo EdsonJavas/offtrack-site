@@ -31,17 +31,17 @@
 /* Sai do canto superior direito do K, subindo acima da linha das letras. */
 .star {
   position: absolute;
-  top: -0.42em;
-  right: -0.02em;
-  width: 0.36em;
-  height: 0.62em;
+  top: -0.3em;
+  right: -0.08em;
+  width: 0.5em;
+  height: 0.5em;
 }
 
-/* ® pequeno, rente à base, logo depois do K. */
+/* ® pequeno, na linha de base das letras, logo depois do K. */
 .reg {
   position: absolute;
   right: 0.03em;
-  bottom: -0.02em;
+  bottom: 0.13em;
   width: 0.2em;
   height: 0.2em;
 }
