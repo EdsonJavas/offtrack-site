@@ -4,12 +4,12 @@
   border: 1px solid var(--line);
   animation: cardIn 600ms var(--ease-out) both;
   animation-delay: calc(var(--i) * 60ms);
-  transition: border-color var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+  transition: border-color var(--dur) var(--ease-out);
 }
 
+/* Hover discreto: só a borda acende; nada sobe nem dá zoom. */
 .card:hover {
   border-color: var(--line-strong);
-  transform: translateY(-3px);
 }
 
 @keyframes cardIn {
@@ -49,16 +49,11 @@
 .photo {
   object-fit: cover;
   opacity: 0;
-  transition: opacity 500ms var(--ease-out), transform 1200ms var(--ease-out);
-  will-change: transform, opacity;
+  transition: opacity 500ms var(--ease-out);
 }
 
 .photoActive {
   opacity: 1;
-}
-
-.card:hover .photoActive {
-  transform: scale(1.08);
 }
 
 .hint {
