@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { brand } from "@/data/brand";
 import {
   MEASURE_LABELS,
@@ -67,7 +68,8 @@ export function ProductDetail({ product, initialColor, onClose }: ProductDetailP
   const measures = product.measurements[size];
   const measureKeys = Object.keys(measures ?? {}) as MeasureKey[];
 
-  return (
+  // Portal no body: fora da section (que tem z-index próprio), o modal cobre o header fixo.
+  return createPortal(
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="product-title">
       <button type="button" className={styles.backdrop} onClick={onClose} aria-label="Fechar" />
 
@@ -176,6 +178,7 @@ export function ProductDetail({ product, initialColor, onClose }: ProductDetailP
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

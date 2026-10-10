@@ -80,9 +80,10 @@ export function GarmentViewer({ kind, color, measurements, showMeasures }: Garme
             {geometry.measures.map((m) => {
               const value = measurements[m.key];
               if (value === undefined) return null;
-              const mx = (m.from[0] + m.to[0]) / 2 + m.label[0];
-              const my = (m.from[1] + m.to[1]) / 2 + m.label[1];
               const vertical = m.from[0] === m.to[0];
+              // Linha vertical: rótulo à esquerda da linha, para não cortar na borda.
+              const mx = vertical ? m.from[0] - 10 : (m.from[0] + m.to[0]) / 2 + m.label[0];
+              const my = (m.from[1] + m.to[1]) / 2 + m.label[1];
               return (
                 <g key={m.key}>
                   <line x1={m.from[0]} y1={m.from[1]} x2={m.to[0]} y2={m.to[1]} />
@@ -98,7 +99,7 @@ export function GarmentViewer({ kind, color, measurements, showMeasures }: Garme
                     x2={m.to[0] + (vertical ? 6 : 0)}
                     y2={m.to[1] + (vertical ? 0 : 6)}
                   />
-                  <text x={mx} y={my} textAnchor={vertical ? "start" : "middle"}>
+                  <text x={mx} y={my} textAnchor={vertical ? "end" : "middle"}>
                     {MEASURE_LABELS[m.key]} · {value} cm
                   </text>
                 </g>

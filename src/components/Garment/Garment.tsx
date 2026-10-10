@@ -106,7 +106,11 @@ export function Garment({ kind, color, view = "front", angle, className }: Garme
             OT.
           </text>
         ) : (
-          <g transform={`translate(${geometry.printBack[0]} ${geometry.printBack[1]})`} fill={ink}>
+          // Se a peça está espelhada (scaleX < 0), desespelha a estampa para o texto ler certo.
+          <g
+            transform={`translate(${geometry.printBack[0]} ${geometry.printBack[1]}) scale(${safeScale < 0 ? -1 : 1} 1)`}
+            fill={ink}
+          >
             <path d="M0 -40 C 2 -17 17 -2 40 0 C 17 2 2 17 0 40 C -2 17 -17 2 -40 0 C -17 -2 -2 -17 0 -40 Z" />
             <text
               y="68"
