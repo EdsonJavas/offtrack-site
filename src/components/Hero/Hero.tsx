@@ -17,10 +17,10 @@ const [sloganLineOne, sloganLineTwo] = brand.slogan.split(", ");
 /**
  * Viewports do fim do hero em que a animação já terminou (ver Products.module.css).
  * O palco fica preso até faltar 1 viewport; a Seleção (margem -100svh) começa a
- * cobrir faltando 2. Com 2.15 de folga, a cena final descansa 0.15 viewport
- * antes de ser coberta. Animação: 2.2 viewports (o ritmo original); cobertura: 1.
+ * cobrir faltando 2, no instante em que a animação termina. Animação: 2.2 viewports
+ * (o ritmo original); cobertura: 1, durante a qual a cena recua e escurece.
  */
-const OVERLAP_NEXT = 2.15;
+const OVERLAP_NEXT = 2;
 
 /** Primeira tela: a sequência de frames comandada pelo scroll. */
 export function Hero() {
@@ -60,7 +60,22 @@ export function Hero() {
         .to(`.${styles.lineOne}`, { yPercent: 0, duration: 0.45 }, 0.55)
         .to(`.${styles.lineTwo}`, { yPercent: 0, duration: 0.45 }, 0.8)
         .to(`.${styles.tag}`, { opacity: 1, y: 0, duration: 0.3 }, 1.15);
-    }, overlay);
+
+      // Enquanto a Seleção sobe por cima, a cena recua e escurece: resposta imediata ao scroll.
+      gsap.to([overlay, section.querySelector("canvas")], {
+        yPercent: -6,
+        scale: 0.96,
+        opacity: 0.25,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: () => `bottom-=${OVERLAP_NEXT * window.innerHeight} bottom`,
+          end: () => `bottom-=${window.innerHeight} bottom`,
+          invalidateOnRefresh: true,
+          scrub: 0.3,
+        },
+      });
+    }, section);
 
     ScrollTrigger.refresh();
     return () => ctx.revert();
@@ -70,7 +85,7 @@ export function Hero() {
     <FrameSequence
       ref={sectionRef}
       source={heroSource}
-      scrollLength={4.35}
+      scrollLength={4.2}
       overlapNext={OVERLAP_NEXT}
       onLoadProgress={(loaded, total) => setLoadRatio(loaded / total)}
       onReady={() => setReady(true)}
