@@ -25,9 +25,11 @@ export function buildOrderMessage(lines: OrderLine[]): string {
 }
 
 /**
- * Copia a mensagem e abre o canal de atendimento.
- * O Direct não aceita texto pela URL; o WhatsApp aceita, quando existir.
- * Devolve true se conseguiu copiar.
+ * Abre o canal de atendimento com o pedido.
+ * WhatsApp (quando existir) recebe o texto pela URL. O Direct não aceita texto:
+ * abre a conversa (ig.me) e deixa a mensagem copiada para colar.
+ * A janela abre ANTES de qualquer await: depois do await o navegador trata como pop-up.
+ * Devolve true se a mensagem foi copiada.
  */
 export async function sendOrder(message: string): Promise<boolean> {
   if (brand.whatsapp) {
@@ -35,13 +37,12 @@ export async function sendOrder(message: string): Promise<boolean> {
     return false;
   }
 
-  let copied = false;
+  window.open(brand.instagram.direct, "_blank", "noopener,noreferrer");
+
   try {
     await navigator.clipboard.writeText(message);
-    copied = true;
+    return true;
   } catch {
-    // Sem clipboard (http ou permissão negada): só abre o Instagram.
+    return false;
   }
-  window.open(brand.instagram.url, "_blank", "noopener,noreferrer");
-  return copied;
 }

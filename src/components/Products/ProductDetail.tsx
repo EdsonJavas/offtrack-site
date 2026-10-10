@@ -82,12 +82,12 @@ export function ProductDetail({ product, initialVariant, onClose }: ProductDetai
       </div>
 
       <div className={styles.panel}>
-        <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label="Fechar">
-          <span />
-          <span />
-        </button>
-
         <div className={styles.viewer}>
+          <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label="Fechar">
+            <span />
+            <span />
+          </button>
+
           <PhotoViewer
             name={product.name}
             kind={product.kind}

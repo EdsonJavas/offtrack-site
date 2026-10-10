@@ -14,6 +14,8 @@ export const brand = {
   instagram: {
     handle: "@_offtrack.wear",
     url: "https://instagram.com/_offtrack.wear",
+    /** Abre a conversa no Direct (ig.me não aceita texto pronto: a mensagem vai copiada). */
+    direct: "https://ig.me/m/_offtrack.wear",
   },
   /** A confirmar pelo dono. Enquanto undefined, o botão de WhatsApp não aparece. */
   whatsapp: undefined as { number: string; url: string } | undefined,

@@ -60,28 +60,41 @@
   animation: rise 500ms var(--ease-out);
 }
 
-/* X no canto do modal, por cima de tudo. */
+/* X no canto do modal (sobre a foto), por cima de tudo. */
 .close {
   position: absolute;
   top: 12px;
   right: 12px;
   z-index: 5;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--c-white);
-  border-radius: 50%;
-  background: var(--c-black);
-  transition: background var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(244, 244, 242, 0.6);
+  background: rgba(10, 10, 10, 0.55);
+  backdrop-filter: blur(8px);
+  transition: background var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+
+.close::after {
+  content: "Fechar";
+  position: absolute;
+  right: calc(100% + 10px);
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--c-white);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
 }
 
 .close span {
   position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 16px;
-  height: 1px;
+  width: 18px;
+  height: 1.5px;
   background: var(--c-white);
-  transition: background var(--dur) var(--ease-out);
+  transition: background var(--dur) var(--ease-out), transform 500ms var(--ease-out);
 }
 
 .close span:first-child {
@@ -94,11 +107,24 @@
 
 .close:hover {
   background: var(--c-white);
-  transform: rotate(90deg);
+  border-color: var(--c-white);
 }
 
 .close:hover span {
   background: var(--c-black);
+}
+
+.close:hover span:first-child {
+  transform: rotate(225deg);
+}
+
+.close:hover span:last-child {
+  transform: rotate(135deg);
+}
+
+.close:hover::after {
+  opacity: 1;
+  transform: none;
 }
 
 /* ---- Foto ---- */
@@ -580,16 +606,15 @@
     border: 1px solid var(--line-strong);
   }
 
-  /* Fora do painel, no canto, sem brigar com a etiqueta. */
   .close {
-    top: -22px;
-    right: -22px;
+    top: 20px;
+    right: 20px;
   }
 
   .viewerTop {
     top: 20px;
     left: 20px;
-    right: 20px;
+    right: 84px;
   }
 
   .thumbs {

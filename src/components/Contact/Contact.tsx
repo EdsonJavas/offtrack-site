@@ -20,7 +20,7 @@ export function Contact() {
 
         <Reveal delay={0.1} className={styles.actions}>
           <a
-            href={brand.instagram.url}
+            href={brand.instagram.direct}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.primary}
