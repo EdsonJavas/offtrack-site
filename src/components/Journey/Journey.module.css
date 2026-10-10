@@ -129,6 +129,7 @@
   grid-row: 3;
   grid-column: 2;
   min-height: 0;
+  min-width: 0; /* a coluna pode encolher: "FORNECEDOR" em Syne é mais largo que ela */
 }
 
 .step {
@@ -191,8 +192,10 @@
   color: var(--c-gray-200);
 }
 
+/* Syne mede ~1,36em por letra: 10 letras cabem em 64px numa coluna de ~900px. */
 .stepTitle {
-  font-size: clamp(30px, 5.2vw, 72px);
+  font-size: clamp(22px, 4.6vw, 64px);
+  overflow-wrap: anywhere;
 }
 
 .stepText {
