@@ -37,10 +37,14 @@ export const drawHeroPlaceholder: DrawFrame = (ctx, progress, width, height) => 
   ctx.fillStyle = light;
   ctx.fillRect(0, 0, width, height);
 
+  // Estrela e anéis só entram depois que o wordmark sai (progress > 0.2).
+  const reveal = Math.min(1, Math.max(0, (progress - 0.2) / 0.2));
+  if (reveal === 0) return;
+
   // Anéis concêntricos que se expandem e somem.
   const rings = 3;
   for (let i = 0; i < rings; i++) {
-    const local = Math.min(1, Math.max(0, progress * 1.4 - i * 0.18));
+    const local = Math.min(1, Math.max(0, (progress - 0.2) * 1.6 - i * 0.18));
     if (local <= 0) continue;
     const radius = base * (0.08 + easeOut(local) * 0.7);
     ctx.strokeStyle = `rgba(244,244,242,${0.45 * (1 - local)})`;
@@ -51,13 +55,13 @@ export const drawHeroPlaceholder: DrawFrame = (ctx, progress, width, height) => 
   }
 
   // Estrela de quatro pontas girando e crescendo.
-  const grow = easeInOut(Math.min(1, progress * 1.2));
-  const outer = base * (0.035 + grow * 0.26);
+  const grow = easeInOut(Math.min(1, (progress - 0.2) * 1.4));
+  const outer = base * (0.03 + grow * 0.27);
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(progress * Math.PI * 1.25);
   starPath(ctx, outer, outer * 0.16);
-  ctx.fillStyle = `rgba(244,244,242,${0.95 - progress * 0.25})`;
+  ctx.fillStyle = `rgba(244,244,242,${reveal * (0.95 - progress * 0.25)})`;
   ctx.fill();
   ctx.restore();
 

@@ -28,6 +28,10 @@ export function Hero() {
     if (!section || !overlay || reducedMotion) return;
 
     const ctx = gsap.context(() => {
+      // Estado inicial explícito: dentro de timeline com scrub, o `from` não é confiável.
+      gsap.set([`.${styles.lineOne}`, `.${styles.lineTwo}`], { yPercent: 150 });
+      gsap.set(`.${styles.tag}`, { opacity: 0, y: 16 });
+
       const timeline = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
@@ -40,11 +44,12 @@ export function Hero() {
 
       timeline
         .to(`.${styles.hint}`, { opacity: 0, duration: 0.15 }, 0)
-        .to(`.${styles.wordmark}`, { yPercent: -60, opacity: 0, letterSpacing: "0.1em", duration: 0.5 }, 0.2)
-        .to(`.${styles.sub}`, { opacity: 0, duration: 0.3 }, 0.2)
-        .fromTo(`.${styles.lineOne}`, { yPercent: 100 }, { yPercent: 0, duration: 0.45 }, 0.55)
-        .fromTo(`.${styles.lineTwo}`, { yPercent: 100 }, { yPercent: 0, duration: 0.45 }, 0.8)
-        .fromTo(`.${styles.tag}`, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.3 }, 1.15);
+        .to(`.${styles.wordmark}`, { yPercent: -40, opacity: 0, duration: 0.4 }, 0.15)
+        .to(`.${styles.sub}`, { opacity: 0, duration: 0.25 }, 0.15)
+        // 150%, não 100%: o til do "Ã" sobe além da caixa da linha e vazaria pela máscara.
+        .to(`.${styles.lineOne}`, { yPercent: 0, duration: 0.45 }, 0.55)
+        .to(`.${styles.lineTwo}`, { yPercent: 0, duration: 0.45 }, 0.8)
+        .to(`.${styles.tag}`, { opacity: 1, y: 0, duration: 0.3 }, 1.15);
     }, overlay);
 
     ScrollTrigger.refresh();

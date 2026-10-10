@@ -93,7 +93,7 @@ h2,
 h3 {
   font-family: var(--font-display);
   font-weight: 800;
-  line-height: 0.95;
+  line-height: 1.02;
   letter-spacing: -0.02em;
   text-transform: uppercase;
 }

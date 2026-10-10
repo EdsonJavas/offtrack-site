@@ -17,7 +17,7 @@
 }
 
 .title {
-  font-size: clamp(36px, 6vw, 80px);
+  font-size: clamp(30px, 6vw, 80px);
 }
 
 .list {

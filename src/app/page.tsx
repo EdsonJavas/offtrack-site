@@ -15,10 +15,10 @@ export default function Home() {
       <Header />
       <main id="top">
         <Hero />
-        <Manifesto />
-        <Story />
         <Products />
         <HowItWorks />
+        <Manifesto />
+        <Story />
         <PaymentDelivery />
         <Faq />
         <Contact />
