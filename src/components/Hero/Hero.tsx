@@ -17,10 +17,10 @@ const [sloganLineOne, sloganLineTwo] = brand.slogan.split(", ");
 /**
  * Viewports do fim do hero em que a animação já terminou (ver Products.module.css).
  * O palco fica preso até faltar 1 viewport; a Seleção (margem -100svh) começa a
- * cobrir faltando 2. Com 2.25 de folga, a cena final descansa 0.25 viewport
- * antes de ser coberta. Animação: 1.6 viewports; cobertura: 1.
+ * cobrir faltando 2. Com 2.15 de folga, a cena final descansa 0.15 viewport
+ * antes de ser coberta. Animação: 2.2 viewports (o ritmo original); cobertura: 1.
  */
-const OVERLAP_NEXT = 2.25;
+const OVERLAP_NEXT = 2.15;
 
 /** Primeira tela: a sequência de frames comandada pelo scroll. */
 export function Hero() {
@@ -48,7 +48,7 @@ export function Hero() {
           // A Seleção cobre o último viewport do hero: a animação termina antes.
           end: () => `bottom-=${OVERLAP_NEXT * window.innerHeight} bottom`,
           invalidateOnRefresh: true,
-          scrub: 0.3,
+          scrub: 0.5,
         },
       });
 
@@ -70,7 +70,7 @@ export function Hero() {
     <FrameSequence
       ref={sectionRef}
       source={heroSource}
-      scrollLength={3.85}
+      scrollLength={4.35}
       overlapNext={OVERLAP_NEXT}
       onLoadProgress={(loaded, total) => setLoadRatio(loaded / total)}
       onReady={() => setReady(true)}
