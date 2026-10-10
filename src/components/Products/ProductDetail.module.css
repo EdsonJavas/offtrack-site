@@ -52,11 +52,53 @@
 .panel {
   position: relative;
   display: grid;
-  grid-template-rows: 52% minmax(0, 1fr);
+  grid-template-rows: 50% minmax(0, 1fr);
   width: 100%;
   height: 100%;
   min-height: 0;
+  background: var(--c-black);
   animation: rise 500ms var(--ease-out);
+}
+
+/* X no canto do modal, por cima de tudo. */
+.close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--c-white);
+  border-radius: 50%;
+  background: var(--c-black);
+  transition: background var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+
+.close span {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 16px;
+  height: 1px;
+  background: var(--c-white);
+  transition: background var(--dur) var(--ease-out);
+}
+
+.close span:first-child {
+  transform: rotate(45deg);
+}
+
+.close span:last-child {
+  transform: rotate(-45deg);
+}
+
+.close:hover {
+  background: var(--c-white);
+  transform: rotate(90deg);
+}
+
+.close:hover span {
+  background: var(--c-black);
 }
 
 /* ---- Foto ---- */
@@ -71,7 +113,7 @@
   position: absolute;
   top: 14px;
   left: 14px;
-  right: 14px;
+  right: 70px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -155,48 +197,23 @@
   display: none;
 }
 
-/* ---- Etiqueta ---- */
+/* ---- Coluna da etiqueta ---- */
 
 .tagWrap {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   min-height: 0;
-  overflow-y: auto;
-  padding: 44px var(--gutter) 24px;
-  background: var(--c-black);
-}
-
-.close {
-  position: fixed;
-  top: 14px;
-  right: 14px;
-  z-index: 3;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--c-white);
-  border-radius: 50%;
-  background: var(--c-black);
-}
-
-.close span {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 16px;
-  height: 1px;
-  background: var(--c-white);
-}
-
-.close span:first-child {
-  transform: rotate(45deg);
-}
-
-.close span:last-child {
-  transform: rotate(-45deg);
+  padding: 16px var(--gutter) 16px;
+  overflow-y: auto; /* só no celular; no desktop tudo cabe */
 }
 
 .tag {
   position: relative;
-  padding: 36px 22px 22px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 30px 20px 18px;
   background: var(--c-white);
   color: var(--c-black);
   transform-origin: 50% -40px;
@@ -206,14 +223,10 @@
     radial-gradient(5px at 50% 0, transparent 98%, #000) 50% 0 / 20px 100% repeat-x,
     radial-gradient(5px at 50% 100%, transparent 98%, #000) 50% 100% / 20px 100% repeat-x,
     linear-gradient(#000, #000) 0 10px / 100% calc(100% - 20px) no-repeat;
-  -webkit-mask-composite: source-over;
   mask:
     radial-gradient(5px at 50% 0, transparent 98%, #000) 50% 0 / 20px 100% repeat-x,
     radial-gradient(5px at 50% 100%, transparent 98%, #000) 50% 100% / 20px 100% repeat-x,
     linear-gradient(#000, #000) 0 10px / 100% calc(100% - 20px) no-repeat;
-  --fg-muted: var(--c-gray-600);
-  --line: rgba(10, 10, 10, 0.14);
-  --line-strong: rgba(10, 10, 10, 0.45);
 }
 
 @keyframes swing {
@@ -232,7 +245,7 @@
 
 .hole {
   position: absolute;
-  top: 14px;
+  top: 12px;
   left: 50%;
   width: 14px;
   height: 14px;
@@ -276,18 +289,17 @@
 }
 
 .stamp {
-  padding: 4px 8px;
+  padding: 3px 7px;
   border: 2px solid var(--c-black);
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 14px;
+  font-size: 13px;
   transform: rotate(-8deg);
 }
 
-/* Syne é larga (1,36em por letra): 9 letras × 40px cabem na coluna de ~600px. */
+/* Syne é larga (1,36em por letra): 9 letras × 36px cabem na coluna. */
 .name {
-  margin-top: 12px;
-  font-size: clamp(26px, 3.2vw, 40px);
+  font-size: clamp(24px, 2.6vw, 36px);
   line-height: 0.95;
   overflow-wrap: anywhere;
 }
@@ -297,16 +309,15 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 18px;
-  padding: 14px 0;
+  padding: 10px 0;
   border-top: 2px solid var(--c-black);
-  border-bottom: 1px dashed var(--line-strong);
+  border-bottom: 1px dashed rgba(10, 10, 10, 0.45);
 }
 
 .price {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(40px, 6vw, 64px);
+  font-size: clamp(36px, 4vw, 54px);
   line-height: 0.9;
   letter-spacing: -0.03em;
 }
@@ -325,23 +336,34 @@
 }
 
 .description {
-  margin-top: 16px;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.5;
   color: #2a2a2a;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Cor e tamanho lado a lado. */
+.fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(10, 10, 10, 0.14);
 }
 
 .field {
   display: grid;
-  gap: 10px;
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
+  gap: 8px;
+  align-content: start;
 }
 
 .fieldLabel {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   font-size: 10px;
   letter-spacing: 0.26em;
   text-transform: uppercase;
@@ -349,8 +371,8 @@
 }
 
 .fieldLabel span {
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-size: 11px;
+  letter-spacing: 0.04em;
   text-transform: none;
   color: var(--c-black);
 }
@@ -358,6 +380,7 @@
 .swatches {
   display: flex;
   gap: 10px;
+  padding: 4px 2px;
 }
 
 .swatch {
@@ -387,8 +410,8 @@
 }
 
 .size {
-  min-width: 46px;
-  padding: 10px;
+  min-width: 42px;
+  padding: 8px 9px;
   border: 1px solid var(--c-black);
   font-size: 12px;
   font-weight: 500;
@@ -407,12 +430,11 @@
 
 .specs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 16px;
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-  font-size: 13px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(10, 10, 10, 0.14);
+  font-size: 12px;
 }
 
 .specs dt {
@@ -423,7 +445,7 @@
 }
 
 .specs dd {
-  margin-top: 4px;
+  margin-top: 3px;
   font-weight: 500;
 }
 
@@ -441,15 +463,16 @@
 
 .tagFoot {
   display: grid;
-  gap: 8px;
-  margin-top: 20px;
-  padding-top: 14px;
-  border-top: 1px dashed var(--line-strong);
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(10, 10, 10, 0.45);
 }
 
 .barcode {
   display: block;
-  height: 34px;
+  height: 26px;
   background: repeating-linear-gradient(
     90deg,
     var(--c-black) 0 2px,
@@ -462,24 +485,19 @@
 }
 
 .sku {
-  font-size: 10px;
-  letter-spacing: 0.26em;
+  font-size: 9px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  text-align: right;
   color: var(--c-gray-600);
 }
 
 /* ---- Ações ---- */
 
 .actions {
-  position: sticky;
-  bottom: -24px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin: 16px calc(var(--gutter) * -1) -24px;
-  padding: 12px var(--gutter) 16px;
-  background: var(--c-black);
-  border-top: 1px solid var(--line);
 }
 
 .addToCart,
@@ -488,7 +506,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 16px 12px;
+  padding: 15px 12px;
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.2em;
@@ -542,32 +560,38 @@
   }
 }
 
-/* ---- Desktop ---- */
+/* ---- Desktop: tudo cabe na tela, sem scroll ---- */
 
 @media (min-width: 900px) {
   .overlay {
-    padding: 28px;
+    padding: 20px;
   }
 
   .panel {
     grid-template-rows: none;
-    grid-template-columns: 1.1fr 44px 1fr;
+    grid-template-columns: 1.1fr 44px minmax(0, 1fr);
     width: min(1320px, 100%);
-    height: min(860px, 100%);
+    height: min(880px, 100%);
     justify-self: center;
     align-self: center;
     border: 1px solid var(--line-strong);
   }
 
+  /* Fora do painel, no canto, sem brigar com a etiqueta. */
+  .close {
+    top: -22px;
+    right: -22px;
+  }
+
   .viewerTop {
-    top: 24px;
-    left: 24px;
-    right: 24px;
+    top: 20px;
+    left: 20px;
+    right: 20px;
   }
 
   .thumbs {
-    left: 24px;
-    bottom: 52px;
+    left: 20px;
+    bottom: 48px;
   }
 
   .strip {
@@ -583,7 +607,6 @@
     left: 50%;
     top: 0;
     transform-origin: 0 0;
-    transform: rotate(90deg) translateY(-50%);
     white-space: nowrap;
     font-size: 11px;
     font-weight: 500;
@@ -602,23 +625,24 @@
   }
 
   .tagWrap {
-    padding: 28px 28px 28px;
-  }
-
-  .close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+    padding: 20px 20px 20px;
+    overflow: hidden;
   }
 
   .tag {
-    padding: 40px 28px 26px;
-    margin-top: 24px;
+    flex: 1;
+    min-height: 0;
+    /* distribui o espaço que sobrar entre os blocos */
+    align-content: space-between;
+  }
+}
+
+@media (min-width: 1200px) {
+  .tag {
+    padding: 34px 26px 20px;
   }
 
-  .actions {
-    bottom: -28px;
-    margin: 16px -28px -28px;
-    padding: 14px 28px 20px;
+  .specs {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

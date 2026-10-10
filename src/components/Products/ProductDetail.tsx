@@ -82,6 +82,11 @@ export function ProductDetail({ product, initialVariant, onClose }: ProductDetai
       </div>
 
       <div className={styles.panel}>
+        <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label="Fechar">
+          <span />
+          <span />
+        </button>
+
         <div className={styles.viewer}>
           <PhotoViewer
             name={product.name}
@@ -135,11 +140,6 @@ export function ProductDetail({ product, initialVariant, onClose }: ProductDetai
 
         {/* Etiqueta pendurada: informações da peça como numa tag de roupa. */}
         <div className={styles.tagWrap} data-lenis-prevent>
-          <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label="Fechar">
-            <span />
-            <span />
-          </button>
-
           <article className={styles.tag}>
             <span className={styles.hole} aria-hidden="true" />
             <div className={styles.tagStripes} aria-hidden="true" />
@@ -168,43 +168,45 @@ export function ProductDetail({ product, initialVariant, onClose }: ProductDetai
 
             <p className={styles.description}>{product.description}</p>
 
-            <div className={styles.field}>
-              <p className={styles.fieldLabel}>
-                Cor <span>{variant.color}</span>
-              </p>
-              <div className={styles.swatches} role="radiogroup" aria-label="Cor">
-                {product.variants.map((v) => (
-                  <button
-                    key={v.color}
-                    type="button"
-                    role="radio"
-                    aria-checked={v === variant}
-                    aria-label={v.color}
-                    className={`${styles.swatch} ${v === variant ? styles.swatchActive : ""}`}
-                    style={{ "--swatch": v.hex } as React.CSSProperties}
-                    onClick={() => setVariant(v)}
-                  />
-                ))}
+            <div className={styles.fields}>
+              <div className={styles.field}>
+                <p className={styles.fieldLabel}>
+                  Cor <span>{variant.color}</span>
+                </p>
+                <div className={styles.swatches} role="radiogroup" aria-label="Cor">
+                  {product.variants.map((v) => (
+                    <button
+                      key={v.color}
+                      type="button"
+                      role="radio"
+                      aria-checked={v === variant}
+                      aria-label={v.color}
+                      className={`${styles.swatch} ${v === variant ? styles.swatchActive : ""}`}
+                      style={{ "--swatch": v.hex } as React.CSSProperties}
+                      onClick={() => setVariant(v)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className={styles.field}>
-              <p className={styles.fieldLabel}>
-                Tamanho <span>{size}</span>
-              </p>
-              <div className={styles.sizes} role="radiogroup" aria-label="Tamanho">
-                {product.sizes.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    role="radio"
-                    aria-checked={s === size}
-                    className={`${styles.size} ${s === size ? styles.sizeActive : ""}`}
-                    onClick={() => setSize(s)}
-                  >
-                    {s}
-                  </button>
-                ))}
+              <div className={styles.field}>
+                <p className={styles.fieldLabel}>
+                  Tamanho <span>{size}</span>
+                </p>
+                <div className={styles.sizes} role="radiogroup" aria-label="Tamanho">
+                  {product.sizes.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      role="radio"
+                      aria-checked={s === size}
+                      className={`${styles.size} ${s === size ? styles.sizeActive : ""}`}
+                      onClick={() => setSize(s)}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
