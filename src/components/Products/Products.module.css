@@ -180,8 +180,13 @@
   flex: 0 0 100%;
   display: grid;
   grid-template-columns: repeat(var(--per-page), minmax(0, 1fr));
+  align-items: stretch;
   gap: 20px;
   list-style: none;
+}
+
+.page > li {
+  display: grid;
 }
 
 .pagination {
