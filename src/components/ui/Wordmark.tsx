@@ -1,4 +1,5 @@
 import { brand } from "@/data/brand";
+import { LogoStar } from "./LogoStar";
 import styles from "./Wordmark.module.css";
 
 interface WordmarkProps {
@@ -19,15 +20,7 @@ export function Wordmark({ className, hollow = false }: WordmarkProps) {
     >
       <span className={styles.text}>{brand.name}</span>
 
-      {/* A estrela do hero (heroPlaceholder): 4 pontas retas, miolo em 16% do raio. */}
-      <svg
-        className={styles.star}
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path d="M12 0 13.36 10.64 24 12 13.36 13.36 12 24 10.64 13.36 0 12 10.64 10.64z" />
-      </svg>
+      <LogoStar className={styles.star} />
 
       <svg className={styles.reg} viewBox="0 0 24 24" aria-hidden="true">
         <circle

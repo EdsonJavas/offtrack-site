@@ -7,6 +7,7 @@ import { brand } from "@/data/brand";
 import { useCart } from "@/components/Cart/CartProvider";
 import { useModal } from "@/hooks/useModal";
 import { Star } from "@/components/ui/Star";
+import { LogoStar } from "@/components/ui/LogoStar";
 import styles from "./Header.module.css";
 
 /** Na ordem em que as seções aparecem na página. */
@@ -43,6 +44,7 @@ export function Header() {
         aria-label={`${brand.name}, voltar ao topo`}
       >
         {brand.monogram}
+        <LogoStar className={styles.monogramStar} />
       </Link>
 
       <nav className={styles.nav} aria-label="Seções">
