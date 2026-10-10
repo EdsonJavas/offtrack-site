@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { lenisStore } from "@/lib/lenis";
 
 /** Rolagem suave (Lenis) sincronizada com o ScrollTrigger do GSAP. */
 export function SmoothScroll({ children }: { children: ReactNode }) {
@@ -18,8 +19,10 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add(update);
     gsap.ticker.lagSmoothing(0);
+    lenisStore.set(lenis);
 
     return () => {
+      lenisStore.set(null);
       gsap.ticker.remove(update);
       lenis.destroy();
     };

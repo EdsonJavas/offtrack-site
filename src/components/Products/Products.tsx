@@ -1,11 +1,17 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
-import { mockProducts } from "@/data/mock/products";
+import { useCallback, useRef, useState, type PointerEvent } from "react";
+import { mockProducts, type Product, type ProductColor } from "@/data/mock/products";
 import { useMediaValue } from "@/hooks/useMediaValue";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "./ProductCard";
+import { ProductDetail } from "./ProductDetail";
 import styles from "./Products.module.css";
+
+interface Selection {
+  product: Product;
+  color: ProductColor;
+}
 
 const SWIPE_THRESHOLD = 48;
 
@@ -17,7 +23,11 @@ export function Products() {
   const perPage = useMediaValue([{ minWidth: 700, value: 2 }, { minWidth: 1100, value: 3 }], 1);
   const pageCount = Math.ceil(mockProducts.length / perPage);
   const [requestedPage, setPage] = useState(0);
+  const [selection, setSelection] = useState<Selection | null>(null);
   const dragStart = useRef<number | null>(null);
+
+  const open = useCallback((product: Product, color: ProductColor) => setSelection({ product, color }), []);
+  const close = useCallback(() => setSelection(null), []);
 
   // Se o breakpoint mudar e houver menos páginas, fica na última válida.
   const page = Math.min(requestedPage, pageCount - 1);
@@ -95,7 +105,7 @@ export function Products() {
             >
               {items.map((product, j) => (
                 <li key={product.id}>
-                  <ProductCard product={product} index={i * perPage + j} />
+                  <ProductCard product={product} index={i * perPage + j} onOpen={open} />
                 </li>
               ))}
             </ul>
@@ -116,6 +126,15 @@ export function Products() {
           />
         ))}
       </div>
+
+      {selection && (
+        <ProductDetail
+          key={selection.product.id}
+          product={selection.product}
+          initialColor={selection.color}
+          onClose={close}
+        />
+      )}
     </section>
   );
 }
