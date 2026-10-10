@@ -23,7 +23,10 @@ export function Manifesto() {
     const track = trackRef.current;
     if (!section || !track || reducedMotion) return;
 
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    // Desktop: a página rola para baixo e a faixa anda para o lado.
+    mm.add("(min-width: 900px)", () => {
       gsap.to(track, {
         x: () => -(track.scrollWidth - window.innerWidth),
         ease: "none",
@@ -38,7 +41,7 @@ export function Manifesto() {
 
       // Carimbos batem na tela conforme o painel deles aparece.
       gsap.utils
-        .toArray<HTMLElement>(`.${styles.stamp}`)
+        .toArray<HTMLElement>(`.${styles.stamp}`, section)
         .forEach((stamp, i) => {
           gsap.from(stamp, {
             scale: 1.6,
@@ -53,9 +56,47 @@ export function Manifesto() {
             },
           });
         });
-    }, section);
+    });
 
-    return () => ctx.revert();
+    // Celular: pilha de cartões. Quando o próximo painel sobe por cima, o de
+    // baixo recua um pouco e escurece (transform + opacity, nada de layout).
+    mm.add("(max-width: 899px)", () => {
+      const panels = gsap.utils.toArray<HTMLElement>(`.${styles.panel}`, section);
+      panels.forEach((panel, i) => {
+        const next = panels[i + 1];
+        if (!next) return;
+        gsap.to(panel, {
+          scale: 0.94,
+          "--veil": 0.55,
+          ease: "none",
+          scrollTrigger: {
+            trigger: next,
+            start: "top bottom",
+            end: "top top",
+            scrub: 0.3,
+          },
+        });
+      });
+
+      gsap.utils
+        .toArray<HTMLElement>(`.${styles.stamp}`, section)
+        .forEach((stamp, i) => {
+          gsap.from(stamp, {
+            scale: 1.3,
+            rotate: -8 + i * 6,
+            autoAlpha: 0,
+            ease: "power3.out",
+            duration: 0.5,
+            scrollTrigger: {
+              trigger: stamp,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          });
+        });
+    });
+
+    return () => mm.revert();
   }, [reducedMotion]);
 
   return (
@@ -64,6 +105,7 @@ export function Manifesto() {
       id="marca"
       scrollLength={4}
       className={styles.section}
+      stageClassName={styles.stage}
     >
       <div ref={trackRef} className={styles.track}>
         <article className={`${styles.panel} ${styles.panelOne}`}>
