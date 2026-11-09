@@ -677,6 +677,136 @@
   }
 }
 
+/* ---- Ferramentas sobre a foto: medidas + compartilhar ---- */
+
+.viewerTools {
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.share {
+  gap: 8px;
+}
+
+/* ---- Voltar (página própria): mesmo botão do X, com seta ---- */
+
+.close {
+  color: var(--c-white);
+}
+
+.close:hover {
+  color: var(--c-black);
+}
+
+.viewer[data-top="light"] .close {
+  color: var(--c-black);
+}
+
+.viewer[data-top="light"] .close:hover {
+  color: var(--c-white);
+}
+
+/* ---- Preço "de/por" ---- */
+
+.was {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--c-gray-600);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---- Esgotado: tamanho riscado, cor com traço, botão apagado ---- */
+
+.sizeOff,
+.sizeOff:hover {
+  border-color: rgba(10, 10, 10, 0.25);
+  background:
+    linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      rgba(10, 10, 10, 0.45) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+  color: rgba(10, 10, 10, 0.4);
+  cursor: not-allowed;
+}
+
+.swatchOff {
+  position: relative;
+  opacity: 0.45;
+}
+
+.swatchOff::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 1px),
+    var(--c-black) calc(50% - 1px) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
+.addToCart:disabled,
+.addToCart:disabled:hover {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--fg-muted);
+  cursor: not-allowed;
+}
+
+/* ---- Página própria da peça (/peca/[id]) ----
+   Mesmo painel da janela, mas no fluxo da página: sem overlay e sem scroll próprio. */
+
+.pageShell {
+  position: relative;
+  overflow: clip;
+  padding-top: 72px; /* header fixo */
+  background: var(--c-black);
+}
+
+.pageShell .watermark {
+  position: absolute;
+  top: 50svh;
+}
+
+.panelPage {
+  height: auto;
+  overflow: visible;
+  animation: none;
+}
+
+.panelPage .close {
+  position: absolute;
+}
+
+/* Celular: no rótulo de compartilhar fica só o ícone enquanto não há retorno. */
+@media (max-width: 479px) {
+  .shareLabel {
+    display: none;
+  }
+
+  .measuresToggle {
+    padding: 10px 12px;
+  }
+}
+
 /* ---- Desktop: tudo cabe na tela, sem scroll ---- */
 
 @media (min-width: 900px) {
@@ -703,6 +833,18 @@
     background: var(--c-black);
     border: 1px solid var(--line-strong);
     animation: rise 500ms var(--ease-out);
+  }
+
+  /* Página própria: o mesmo painel, centralizado abaixo do header fixo. */
+  .pageShell {
+    padding: 96px 20px 40px;
+  }
+
+  .panelPage {
+    height: calc(100dvh - 136px);
+    min-height: 560px;
+    margin-inline: auto;
+    animation: none;
   }
 
   .viewer {

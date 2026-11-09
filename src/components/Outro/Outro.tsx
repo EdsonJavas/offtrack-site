@@ -6,6 +6,7 @@ import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { brand } from "@/data/brand";
 import { useCart } from "@/components/Cart/CartProvider";
+import { useStore } from "@/components/Store/StoreProvider";
 import { ScrollStage } from "@/components/ScrollStage/ScrollStage";
 import { Star } from "@/components/ui/Star";
 import { Wordmark } from "@/components/ui/Wordmark";
@@ -19,6 +20,7 @@ export function Outro() {
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
   const cart = useCart();
+  const store = useStore();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -70,6 +72,16 @@ export function Outro() {
               <Star size={11} />
               Direct no Instagram
             </a>
+            {store.whatsapp && (
+              <a
+                href={store.whatsapp.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.secondary}
+              >
+                WhatsApp
+              </a>
+            )}
             <button
               type="button"
               className={styles.secondary}
@@ -97,9 +109,9 @@ export function Outro() {
           </p>
           <p className={styles.meta}>
             {[
-              brand.legal.entity,
-              brand.legal.document,
-              brand.legal.address ?? `${brand.city}, ${brand.state}`,
+              store.legal.entity,
+              store.legal.document,
+              store.legal.address ?? `${brand.city}, ${brand.state}`,
               `© ${brand.foundedYear} ${brand.name}`,
             ]
               .filter(Boolean)
@@ -112,9 +124,9 @@ export function Outro() {
             <Link href="/privacidade" className={styles.meta}>
               Privacidade
             </Link>
-            {brand.email && (
-              <a href={`mailto:${brand.email}`} className={styles.meta}>
-                {brand.email}
+            {store.email && (
+              <a href={`mailto:${store.email}`} className={styles.meta}>
+                {store.email}
               </a>
             )}
             <a

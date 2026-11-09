@@ -32,14 +32,17 @@ export type SendResult = "whatsapp" | "copied" | "not-copied";
 
 /**
  * Abre o canal de atendimento com o pedido.
- * WhatsApp (quando existir) recebe o texto pela URL. O Direct não aceita texto:
- * a mensagem é copiada ANTES de abrir a conversa (depois de trocar de aba a cópia
- * costuma falhar), e a janela abre no mesmo gesto do clique.
+ * WhatsApp (quando a loja tem, `whatsappUrl`) recebe o texto pela URL. O Direct
+ * não aceita texto: a mensagem é copiada ANTES de abrir a conversa (depois de
+ * trocar de aba a cópia costuma falhar), e a janela abre no mesmo gesto do clique.
  */
-export function sendOrder(message: string): Promise<SendResult> {
-  if (brand.whatsapp) {
+export function sendOrder(
+  message: string,
+  whatsappUrl?: string,
+): Promise<SendResult> {
+  if (whatsappUrl) {
     window.open(
-      `${brand.whatsapp.url}?text=${encodeURIComponent(message)}`,
+      `${whatsappUrl}?text=${encodeURIComponent(message)}`,
       "_blank",
       "noopener,noreferrer",
     );

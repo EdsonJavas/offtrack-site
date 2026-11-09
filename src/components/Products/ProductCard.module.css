@@ -34,9 +34,24 @@
 .open {
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   padding: 0;
   cursor: pointer;
+}
+
+/* Peça toda esgotada: a foto recua, o resto do card continua legível. */
+.mediaOut .photo {
+  opacity: 0.45;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .open::after {
@@ -282,6 +297,20 @@
   color: var(--c-black);
 }
 
+/* Esgotado: continua à mostra, riscado na diagonal e sem clique. */
+.sizeOff,
+.sizeOff:hover {
+  border-color: var(--line);
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    var(--c-gray-600) calc(50% - 0.5px) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+  color: var(--c-gray-600);
+  cursor: not-allowed;
+}
+
 .nudge {
   animation: shake 400ms var(--ease-out);
 }
@@ -336,6 +365,17 @@
 
 .add:hover .addIcon {
   transform: rotate(90deg);
+}
+
+.add:disabled,
+.add:disabled:hover {
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-color: var(--line);
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: not-allowed;
 }
 
 /* Confirmação: botão inverte e o card dá um "aperto" rápido (só transform). */

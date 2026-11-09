@@ -1,6 +1,7 @@
 /**
  * Dados reais da marca, vindos do questionário respondido pelo dono em 10/10/2026.
- * Campos `undefined` ainda não foram confirmados pelo dono: o site não os exibe.
+ * Contato (WhatsApp, e-mail) e identificação legal não ficam aqui: o dono os
+ * preenche no painel (/admin/loja) e o site lê de `getStore()` / `useStore()`.
  */
 export const brand = {
   name: "OFFTRACK",
@@ -16,19 +17,6 @@ export const brand = {
     url: "https://instagram.com/_offtrack.wear",
     /** Abre a conversa no Direct (ig.me não aceita texto pronto: a mensagem vai copiada). */
     direct: "https://ig.me/m/_offtrack.wear",
-  },
-  /** A confirmar pelo dono. Enquanto undefined, o site usa só o Direct. */
-  whatsapp: undefined as { number: string; url: string } | undefined,
-  /** A confirmar pelo dono. */
-  email: undefined as string | undefined,
-  /**
-   * Identificação legal (CDC / Decreto 7.962): obrigatória para vender pela internet.
-   * A confirmar pelo dono: razão social ou nome do responsável, CNPJ ou CPF, endereço.
-   */
-  legal: {
-    entity: undefined as string | undefined,
-    document: undefined as string | undefined,
-    address: undefined as string | undefined,
   },
 } as const;
 

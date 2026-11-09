@@ -7,6 +7,8 @@ import { brand } from "@/data/brand";
 import { formatPrice, splitDeposit } from "@/lib/format";
 import { buildOrderMessage, sendOrder, type SendResult } from "@/lib/order";
 import { useModal } from "@/hooks/useModal";
+import { track } from "@/lib/track";
+import { useStore } from "@/components/Store/StoreProvider";
 import { Star } from "@/components/ui/Star";
 import { useCart } from "./CartProvider";
 import { OrderMessage } from "./OrderMessage";
@@ -31,10 +33,13 @@ export function CartDrawer() {
 
   useModal(isOpen, drawerRef, close);
 
+  const store = useStore();
+
   const checkout = () => {
     const text = buildOrderMessage(cart.items);
     setMessage(text);
-    sendOrder(text).then(setResult);
+    track("direct", cart.items.map((i) => i.productId));
+    sendOrder(text, store.whatsapp?.url).then(setResult);
   };
 
   const { deposit } = splitDeposit(cart.subtotal);
@@ -188,7 +193,7 @@ export function CartDrawer() {
               onClick={checkout}
               disabled={cart.items.length === 0}
             >
-              {brand.whatsapp ? "Chamar no WhatsApp" : "Chamar no Direct"} com{" "}
+              {store.whatsapp ? "Chamar no WhatsApp" : "Chamar no Direct"} com{" "}
               {cart.count === 1 ? "esta peça" : "estas peças"}
               <Star size={11} />
             </button>

@@ -1,6 +1,6 @@
 import "server-only";
 import { unstable_cache, updateTag } from "next/cache";
-import type { Catalog, Product } from "@/data/types";
+import type { Catalog, Product, StoreSettings } from "@/data/types";
 
 /**
  * O catálogo tem uma fonte só: o Vercel Blob de produção. Não há peças de
@@ -79,11 +79,20 @@ async function readMirrorCatalog(): Promise<Catalog | null> {
   }
 }
 
-async function readProducts(): Promise<Product[]> {
+/** Catálogo como o resto do app enxerga: peças reais + dados da loja. */
+interface CatalogData {
+  products: Product[];
+  store: StoreSettings;
+}
+
+async function readData(): Promise<CatalogData> {
   const catalog = hasBlob()
     ? await readBlobCatalog()
     : await readMirrorCatalog();
-  return (catalog?.products ?? []).filter(isReal);
+  return {
+    products: (catalog?.products ?? []).filter(isReal),
+    store: catalog?.store ?? {},
+  };
 }
 
 async function writeBlobVersion(catalog: Catalog) {
@@ -109,27 +118,30 @@ async function writeBlobVersion(catalog: Catalog) {
   }
 }
 
-async function writeCatalog(products: Product[]) {
+async function writeData(data: CatalogData) {
   if (!hasBlob()) {
     throw new Error(
       "Catálogo somente leitura: defina BLOB_READ_WRITE_TOKEN para gravar.",
     );
   }
-  await writeBlobVersion({ version: 1, products: products.filter(isReal) });
+  await writeBlobVersion({
+    version: 1,
+    products: data.products.filter(isReal),
+    store: data.store,
+  });
   // Quem salva vê o resultado na hora (sem servir cache velho enquanto revalida).
   updateTag(TAG);
 }
 
-const cachedProducts = unstable_cache(readProducts, ["catalog"], {
-  tags: [TAG],
-});
+// Chave nova ("catalog-v2"): o formato em cache mudou de lista para { products, store }.
+const cachedData = unstable_cache(readData, ["catalog-v2"], { tags: [TAG] });
 
-/**
- * Todas as peças cadastradas, para o painel. Com o Blob, o resultado fica em
- * cache até o próximo salvamento; no espelho, cada leitura busca a produção.
- */
+/** Com o Blob, fica em cache até o próximo salvamento; no espelho, lê a produção a cada vez. */
+const getData = () => (hasBlob() ? cachedData() : readData());
+
+/** Todas as peças cadastradas (inclusive ocultas), na ordem da vitrine. */
 export async function getAllProducts(): Promise<Product[]> {
-  return hasBlob() ? cachedProducts() : readProducts();
+  return (await getData()).products;
 }
 
 /** Só as peças visíveis no site. */
@@ -137,19 +149,54 @@ export async function getProducts(): Promise<Product[]> {
   return (await getAllProducts()).filter((p) => p.available);
 }
 
+/** Uma peça visível, pelo id (página própria da peça). */
+export async function getProduct(id: string): Promise<Product | null> {
+  return (await getProducts()).find((p) => p.id === id) ?? null;
+}
+
+/** Dados da loja preenchidos pelo dono (contato, identificação, políticas). */
+export async function getStore(): Promise<StoreSettings> {
+  return (await getData()).store;
+}
+
 export async function saveProduct(product: Product) {
-  const current = await readProducts();
-  const exists = current.some((p) => p.id === product.id);
-  await writeCatalog(
-    exists
-      ? current.map((p) => (p.id === product.id ? product : p))
-      : [product, ...current],
-  );
+  const data = await readData();
+  const exists = data.products.some((p) => p.id === product.id);
+  await writeData({
+    ...data,
+    products: exists
+      ? data.products.map((p) => (p.id === product.id ? product : p))
+      : [product, ...data.products],
+  });
 }
 
 export async function deleteProduct(id: string) {
-  const current = await readProducts();
-  await writeCatalog(current.filter((p) => p.id !== id));
+  const data = await readData();
+  await writeData({
+    ...data,
+    products: data.products.filter((p) => p.id !== id),
+  });
+}
+
+/**
+ * Nova ordem da vitrine. Ids desconhecidos são ignorados e peças que não
+ * vieram na lista (cadastradas no meio do caminho) vão para o fim.
+ */
+export async function reorderProducts(ids: string[]) {
+  const data = await readData();
+  const byId = new Map(data.products.map((p) => [p.id, p]));
+  const ordered = ids.flatMap((id) => {
+    const product = byId.get(id);
+    if (!product) return [];
+    byId.delete(id);
+    return [product];
+  });
+  await writeData({ ...data, products: [...ordered, ...byId.values()] });
+}
+
+export async function saveStore(store: StoreSettings) {
+  const data = await readData();
+  await writeData({ ...data, store });
 }
 
 /** Salva uma foto no Blob e devolve a URL pública. */

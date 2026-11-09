@@ -51,12 +51,42 @@ export function sizesOf(product: Pick<Product, "sizes">, variant: ProductVariant
   return variant.sizes && variant.sizes.length > 0 ? variant.sizes : product.sizes;
 }
 
+/** Um tamanho desta cor está marcado como esgotado? */
+export function isSoldOut(variant: ProductVariant, size: string): boolean {
+  return variant.soldOut?.includes(size) ?? false;
+}
+
+/** Todos os tamanhos da cor esgotados. */
+export function variantSoldOut(
+  product: Pick<Product, "sizes">,
+  variant: ProductVariant,
+): boolean {
+  const sizes = sizesOf(product, variant);
+  return sizes.length > 0 && sizes.every((s) => isSoldOut(variant, s));
+}
+
+/** Nenhuma cor com tamanho disponível: a peça inteira está esgotada. */
+export function productSoldOut(product: Pick<Product, "sizes" | "variants">): boolean {
+  return product.variants.every((v) => variantSoldOut(product, v));
+}
+
+/** Desconto em % quando há preço antigo ("de") maior que o atual; senão 0. */
+export function discountPercent(
+  product: Pick<Product, "priceCents" | "compareAtCents">,
+): number {
+  const was = product.compareAtCents ?? 0;
+  if (was <= product.priceCents || product.priceCents <= 0) return 0;
+  return Math.round((1 - product.priceCents / was) * 100);
+}
+
 export interface ProductVariant {
   color: string;
   hex: string;
   /** Tamanhos só desta cor (quando diferem dos da peça). */
   sizes?: string[];
-  /** URL da foto (Blob em produção, /uploads em dev, ou exemplo). */
+  /** Tamanhos desta cor que estão esgotados (continuam à mostra, riscados). */
+  soldOut?: string[];
+  /** URL da foto (Vercel Blob). */
   image: string;
   /** `object-position` para enquadrar a peça na foto. */
   position?: string;
@@ -70,6 +100,8 @@ export interface Product {
   category: ProductCategory;
   /** Em centavos: R$ 89,90 = 8990. */
   priceCents: number;
+  /** Preço antigo ("de"), em centavos. Só aparece se for maior que o atual. */
+  compareAtCents?: number;
   variants: ProductVariant[];
   sizes: string[];
   /** Medidas em cm, por tamanho. */
@@ -85,7 +117,45 @@ export interface Product {
   updatedAt: string;
 }
 
+/**
+ * Dados da loja que só o dono sabe, preenchidos no painel (/admin/loja).
+ * Tudo opcional: o que estiver vazio simplesmente não aparece no site.
+ */
+export interface StoreSettings {
+  /** WhatsApp só com dígitos, com DDI e DDD (ex.: 5514999990000). */
+  whatsapp?: string;
+  email?: string;
+  /** Razão social ou nome do responsável. */
+  legalEntity?: string;
+  /** CNPJ ou CPF. */
+  legalDocument?: string;
+  legalAddress?: string;
+  /** Textos de política, escritos pelo dono, que entram em Termos e trocas. */
+  shippingPolicy?: string;
+  returnShippingPolicy?: string;
+  cancellationPolicy?: string;
+  exchangePolicy?: string;
+}
+
+export const STORE_FIELDS = [
+  "whatsapp",
+  "email",
+  "legalEntity",
+  "legalDocument",
+  "legalAddress",
+  "shippingPolicy",
+  "returnShippingPolicy",
+  "cancellationPolicy",
+  "exchangePolicy",
+] as const satisfies readonly (keyof StoreSettings)[];
+
+/** Link de conversa do WhatsApp a partir do número salvo. */
+export function whatsappUrl(number: string): string {
+  return `https://wa.me/${number.replace(/\D/g, "")}`;
+}
+
 export interface Catalog {
   version: 1;
   products: Product[];
+  store?: StoreSettings;
 }

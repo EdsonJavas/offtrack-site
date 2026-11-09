@@ -234,12 +234,40 @@ export function Products({ products }: { products: Product[] }) {
     e.stopPropagation();
   };
 
-  const open = useCallback(
-    (product: Product, variant: ProductVariant) =>
-      setSelection({ product, variant }),
-    [],
-  );
-  const close = useCallback(() => setSelection(null), []);
+  /**
+   * Abrir a etiqueta troca o endereço para o da peça (/peca/id) sem sair da
+   * home: o link fica compartilhável e o "voltar" do aparelho fecha a janela.
+   * Quem chega direto por esse endereço cai na página própria da peça.
+   */
+  const open = useCallback((product: Product, variant: ProductVariant) => {
+    setSelection({ product, variant });
+    window.history.pushState(
+      { offtrackPiece: product.id },
+      "",
+      `/peca/${product.id}`,
+    );
+  }, []);
+
+  const close = useCallback(() => {
+    // Fechar = voltar a entrada que abrimos; o popstate limpa a seleção.
+    if (window.history.state?.offtrackPiece) window.history.back();
+    else setSelection(null);
+  }, []);
+
+  // Voltar/avançar do navegador abre e fecha a etiqueta conforme o endereço.
+  useEffect(() => {
+    const onPopState = () => {
+      const match = window.location.pathname.match(/^\/peca\/([^/]+)\/?$/);
+      const product = match
+        ? products.find((p) => p.id === decodeURIComponent(match[1]))
+        : undefined;
+      setSelection(
+        product ? { product, variant: product.variants[0] } : null,
+      );
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [products]);
 
   const choose = (next: Filter) => {
     setFilter(next);

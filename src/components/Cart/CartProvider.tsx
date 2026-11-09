@@ -9,7 +9,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { sizesOf, type Product, type ProductVariant } from "@/data/types";
+import {
+  isSoldOut,
+  sizesOf,
+  type Product,
+  type ProductVariant,
+} from "@/data/types";
 
 export interface CartItem {
   /** productId + cor + tamanho. */
@@ -73,6 +78,8 @@ function reconcile(items: CartItem[], catalog: Product[]): CartItem[] {
       product.variants.find((v) => v.color === item.color) ??
       product.variants[0];
     if (!sizesOf(product, variant).includes(item.size)) return [];
+    // Esgotou depois de ir para o carrinho: sai, para o pedido não levar o que não tem.
+    if (isSoldOut(variant, item.size)) return [];
     return [
       {
         ...item,
