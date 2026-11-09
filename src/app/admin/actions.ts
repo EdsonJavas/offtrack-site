@@ -6,17 +6,21 @@ import { destroySession, isAuthenticated } from "@/lib/adminAuth";
 import {
   deleteProduct,
   getAllProducts,
+  reorderProducts,
   saveImage,
   saveProduct,
+  saveStore,
   usesBlobStorage,
 } from "@/lib/catalog";
 import { parsePrice } from "@/lib/format";
 import {
   CATEGORIES,
+  STORE_FIELDS,
   measuresFor,
   type MeasureKey,
   type Product,
   type ProductCategory,
+  type StoreSettings,
 } from "@/data/types";
 
 export interface ActionState {
@@ -63,6 +67,8 @@ export async function saveProductAction(
 
   const priceCents = parsePrice(String(formData.get("price") ?? ""));
   if (priceCents <= 0) return { error: "Informe o preço." };
+  // Preço antigo ("de"): só vale quando é maior que o atual.
+  const compareAtCents = parsePrice(String(formData.get("compareAt") ?? ""));
 
   const sizes = String(formData.get("sizes") ?? "")
     .split(/[,\s]+/)
@@ -109,11 +115,15 @@ export async function saveProductAction(
       extras.push(await saveImage(extra));
     }
 
-    // Tamanhos só desta cor (opcional).
-    const variantSizes = String(formData.get(`variant[${i}][sizes]`) ?? "")
-      .split(/[,\s]+/)
-      .map((s) => s.trim().toUpperCase())
-      .filter(Boolean);
+    // Tamanhos só desta cor (opcional) e os que estão esgotados.
+    const sizeList = (field: string) =>
+      String(formData.get(`variant[${i}][${field}]`) ?? "")
+        .split(/[,\s]+/)
+        .map((s) => s.trim().toUpperCase())
+        .filter(Boolean);
+    const variantSizes = sizeList("sizes");
+    const effectiveSizes = variantSizes.length > 0 ? variantSizes : sizes;
+    const soldOut = sizeList("soldOut").filter((s) => effectiveSizes.includes(s));
 
     variants.push({
       color,
@@ -122,6 +132,7 @@ export async function saveProductAction(
       position,
       ...(extras.length > 0 ? { images: extras } : {}),
       ...(variantSizes.length > 0 ? { sizes: variantSizes } : {}),
+      ...(soldOut.length > 0 ? { soldOut } : {}),
     });
   }
   if (variants.length === 0)
@@ -145,9 +156,15 @@ export async function saveProductAction(
     if (Object.keys(entry).length > 0) measurements[size] = entry;
   }
 
+  // Peças que nasceram da edição de um exemplo antigo ficaram com id "exemplo-NN"
+  // (que vira o endereço público /peca/...). Na próxima gravação ganham um id
+  // com o nome da peça; o antigo é apagado para não duplicar.
+  const previousId = String(formData.get("id") ?? "");
+  const legacy = /^exemplo-\d+$/.test(previousId);
   const id =
-    String(formData.get("id") ?? "") ||
-    `${slug(name)}-${Date.now().toString(36)}`;
+    previousId && !legacy
+      ? previousId
+      : `${slug(name)}-${Date.now().toString(36)}`;
   const badge = String(formData.get("badge") ?? "");
 
   const product: Product = {
@@ -155,6 +172,7 @@ export async function saveProductAction(
     name,
     category,
     priceCents,
+    ...(compareAtCents > priceCents ? { compareAtCents } : {}),
     variants,
     sizes,
     measurements,
@@ -168,9 +186,53 @@ export async function saveProductAction(
   };
 
   await saveProduct(product);
-  revalidatePath("/");
+  if (legacy) await deleteProduct(previousId);
+  revalidatePath("/", "layout");
   revalidatePath("/admin");
   redirect("/admin?salvo=1");
+}
+
+/** Nova ordem da vitrine (lista de ids, do primeiro ao último). */
+export async function reorderProductsAction(ids: string[]) {
+  await requireAuth();
+  if (!usesBlobStorage()) return;
+  await reorderProducts(ids.filter((id) => typeof id === "string"));
+  revalidatePath("/", "layout");
+  revalidatePath("/admin");
+}
+
+/** Dados da loja (/admin/loja): contato, identificação e políticas. */
+export async function saveStoreAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireAuth();
+  if (!usesBlobStorage()) return { error: READ_ONLY };
+
+  const text = (field: (typeof STORE_FIELDS)[number]) =>
+    String(formData.get(field) ?? "").trim();
+
+  const whatsappDigits = text("whatsapp").replace(/\D/g, "");
+  if (whatsappDigits && (whatsappDigits.length < 12 || whatsappDigits.length > 13)) {
+    return {
+      error: "WhatsApp: use DDI + DDD + número, só dígitos (ex.: 5514999990000).",
+    };
+  }
+  const email = text("email");
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "E-mail inválido." };
+  }
+
+  const store: StoreSettings = {};
+  for (const field of STORE_FIELDS) {
+    const value = field === "whatsapp" ? whatsappDigits : text(field);
+    if (value) store[field] = value;
+  }
+
+  await saveStore(store);
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/loja");
+  return { ok: true };
 }
 
 export async function toggleAvailableAction(formData: FormData) {
@@ -184,7 +246,7 @@ export async function toggleAvailableAction(formData: FormData) {
     available: !product.available,
     updatedAt: new Date().toISOString(),
   });
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin");
 }
 
@@ -193,6 +255,6 @@ export async function deleteProductAction(formData: FormData) {
   if (!usesBlobStorage()) return;
   const id = String(formData.get("id") ?? "");
   await deleteProduct(id);
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin");
 }

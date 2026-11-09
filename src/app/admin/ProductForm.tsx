@@ -14,6 +14,7 @@ import { upload } from "@vercel/blob/client";
 import {
   CATEGORIES,
   MEASURE_LABELS,
+  discountPercent,
   measuresFor,
   type Product,
   type ProductCategory,
@@ -41,6 +42,8 @@ interface VariantDraft {
   extras: PhotoDraft[];
   /** Tamanhos só desta cor; null = os mesmos da peça. */
   sizes: string[] | null;
+  /** Tamanhos desta cor marcados como esgotados. */
+  soldOut: string[];
 }
 
 interface ProductFormProps {
@@ -80,6 +83,7 @@ const emptyVariant = (): VariantDraft => ({
   main: null,
   extras: [],
   sizes: null,
+  soldOut: [],
 });
 
 /** Onde a foto editada vai parar. */
@@ -121,6 +125,11 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
   const [price, setPrice] = useState(
     product ? (product.priceCents / 100).toFixed(2).replace(".", ",") : "",
   );
+  const [compareAt, setCompareAt] = useState(
+    product?.compareAtCents
+      ? (product.compareAtCents / 100).toFixed(2).replace(".", ",")
+      : "",
+  );
   const [badge, setBadge] = useState<Product["badge"] | "">(
     product?.badge ?? "",
   );
@@ -136,6 +145,7 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
       main: { url: v.image, preview: v.image },
       extras: (v.images ?? []).map((url) => ({ url, preview: url })),
       sizes: v.sizes && v.sizes.length > 0 ? v.sizes : null,
+      soldOut: v.soldOut ?? [],
     })) ?? [emptyVariant()],
   );
   const [activeVariant, setActiveVariant] = useState(0);
@@ -149,6 +159,8 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
   const measureKeys = measuresFor(category);
   const sizePresets = SIZE_PRESETS;
   const priceCents = parsePrice(price);
+  const compareAtCents = parsePrice(compareAt);
+  const discount = discountPercent({ priceCents, compareAtCents });
   // Linhas da tabela de medidas: tamanhos da peça + os próprios de cada cor.
   const allSizes = [
     ...new Set([...sizes, ...variants.flatMap((v) => v.sizes ?? [])]),
@@ -408,7 +420,7 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
               </div>
             </div>
 
-            <div className={styles.row2}>
+            <div className={styles.row3}>
               <label className={styles.group}>
                 <span className={styles.label}>Preço</span>
                 <span className={styles.priceField}>
@@ -426,6 +438,31 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
                 <span className={styles.helpSmall}>
                   Entrada de 80%:{" "}
                   <strong>{formatPrice(Math.round(priceCents * 0.8))}</strong>
+                </span>
+              </label>
+
+              <label className={styles.group}>
+                <span className={styles.label}>
+                  Preço antigo
+                  <em className={styles.labelValue}>
+                    {discount > 0 ? `−${discount}% no card` : "opcional"}
+                  </em>
+                </span>
+                <span className={styles.priceField}>
+                  <span className={styles.prefix}>de R$</span>
+                  <input
+                    name="compareAt"
+                    inputMode="decimal"
+                    value={compareAt}
+                    onChange={(e) => setCompareAt(e.target.value)}
+                    placeholder="—"
+                    className={`${styles.priceInput} ${styles.priceInputSmall}`}
+                  />
+                </span>
+                <span className={styles.helpSmall}>
+                  {compareAt && discount === 0
+                    ? "Só aparece se for maior que o preço atual."
+                    : "Promoção: mostra riscado, com a porcentagem de desconto."}
                 </span>
               </label>
 
@@ -742,6 +779,47 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
                         ))}
                       </div>
                     )}
+
+                    {/* Esgotados: continuam no site, riscados e sem compra. */}
+                    {(v.sizes ?? sizes).length > 0 && (
+                      <div className={styles.soldOutRow}>
+                        <span className={styles.label}>
+                          Esgotados nesta cor
+                          <em className={styles.labelValue}>
+                            {v.soldOut.length === 0
+                              ? "nenhum"
+                              : `${v.soldOut.length} de ${(v.sizes ?? sizes).length}`}
+                          </em>
+                        </span>
+                        <input
+                          type="hidden"
+                          name={`variant[${i}][soldOut]`}
+                          value={v.soldOut.join(", ")}
+                        />
+                        <div className={styles.chips}>
+                          {(v.sizes ?? sizes).map((s) => {
+                            const off = v.soldOut.includes(s);
+                            return (
+                              <button
+                                key={s}
+                                type="button"
+                                aria-pressed={off}
+                                className={`${styles.chip} ${styles.chipSize} ${off ? styles.chipOff : ""}`}
+                                onClick={() =>
+                                  updateVariant(i, {
+                                    soldOut: off
+                                      ? v.soldOut.filter((x) => x !== s)
+                                      : [...v.soldOut, s],
+                                  })
+                                }
+                              >
+                                {s}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {variants.length > 1 && (
@@ -898,9 +976,18 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
                 <div className={styles.cardTop}>
                   <span className={styles.cardCategory}>{category}</span>
                   {badge && <span className={styles.cardBadge}>{badge}</span>}
+                  {discount > 0 && (
+                    <span className={styles.cardBadge}>−{discount}%</span>
+                  )}
                 </div>
                 <div className={styles.cardPrice}>
-                  <span>Sob encomenda</span>
+                  <span>
+                    {discount > 0 ? (
+                      <s>{formatPrice(compareAtCents)}</s>
+                    ) : (
+                      "Sob encomenda"
+                    )}
+                  </span>
                   <strong>{priceCents > 0 ? formatPrice(priceCents) : "R$ —"}</strong>
                 </div>
               </div>
@@ -927,7 +1014,14 @@ export function ProductForm({ product, uploadMode }: ProductFormProps) {
                   <span>Tam.</span>
                   <div className={styles.cardSizes}>
                     {(preview?.sizes ?? sizes).length > 0 ? (
-                      (preview?.sizes ?? sizes).map((s) => <span key={s}>{s}</span>)
+                      (preview?.sizes ?? sizes).map((s) => (
+                        <span
+                          key={s}
+                          className={preview?.soldOut.includes(s) ? styles.cardSizeOff : ""}
+                        >
+                          {s}
+                        </span>
+                      ))
                     ) : (
                       <em>escolha os tamanhos</em>
                     )}

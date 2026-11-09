@@ -1,15 +1,9 @@
 import Link from "next/link";
-import Image from "next/image";
 import { adminConfigured, isAuthenticated } from "@/lib/adminAuth";
 import { getAllProducts, usesBlobStorage } from "@/lib/catalog";
-import { formatPrice } from "@/lib/format";
-import { brand } from "@/data/brand";
+import { AdminNav } from "./AdminNav";
 import { LoginForm } from "./LoginForm";
-import {
-  deleteProductAction,
-  logoutAction,
-  toggleAvailableAction,
-} from "./actions";
+import { ProductList } from "./ProductList";
 import styles from "./admin.module.css";
 
 export const metadata = {
@@ -52,27 +46,17 @@ export default async function AdminPage({
 
   return (
     <main className={styles.shell}>
-      <header className={styles.head}>
-        <div>
-          <p className={styles.eyebrow}>{brand.name} · Painel</p>
-          <h1 className={styles.title}>Peças</h1>
-        </div>
-        <div className={styles.headActions}>
-          <Link href="/" className={styles.ghost} target="_blank">
-            Ver o site
-          </Link>
-          <form action={logoutAction}>
-            <button type="submit" className={styles.ghost}>
-              Sair
-            </button>
-          </form>
-          {!readOnly && (
+      <AdminNav
+        current="pecas"
+        title="Peças"
+        action={
+          !readOnly && (
             <Link href="/admin/produto/novo" className={styles.primary}>
               + Nova peça
             </Link>
-          )}
-        </div>
-      </header>
+          )
+        }
+      />
 
       {params.salvo && (
         <p className={styles.success}>Peça salva. O site já está atualizado.</p>
@@ -87,59 +71,14 @@ export default async function AdminPage({
         </p>
       )}
 
-      {products.length === 0 && (
+      {products.length === 0 ? (
         <p className={styles.notice}>
           Nenhuma peça cadastrada ainda.
           {!readOnly && " Comece por “+ Nova peça”."}
         </p>
+      ) : (
+        <ProductList products={products} readOnly={readOnly} />
       )}
-
-      <ul className={styles.list}>
-        {products.map((p) => (
-          <li
-            key={p.id}
-            className={`${styles.item} ${p.available ? "" : styles.itemOff}`}
-          >
-            <div className={styles.thumb}>
-              <Image
-                src={p.variants[0].image}
-                alt=""
-                fill
-                sizes="80px"
-                style={{ objectFit: "cover" }}
-              />
-            </div>
-            <div className={styles.itemBody}>
-              <p className={styles.itemMeta}>
-                {p.category} · {p.variants.map((v) => v.color).join(", ")} ·{" "}
-                {p.sizes.join(" ")}
-                {!p.available && <span className={styles.tag}>oculta</span>}
-              </p>
-              <p className={styles.itemName}>{p.name}</p>
-              <p className={styles.itemPrice}>{formatPrice(p.priceCents)}</p>
-            </div>
-            {!readOnly && (
-              <div className={styles.itemActions}>
-                <Link href={`/admin/produto/${p.id}`} className={styles.ghost}>
-                  Editar
-                </Link>
-                <form action={toggleAvailableAction}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <button type="submit" className={styles.ghost}>
-                    {p.available ? "Ocultar" : "Mostrar"}
-                  </button>
-                </form>
-                <form action={deleteProductAction}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <button type="submit" className={styles.danger}>
-                    Excluir
-                  </button>
-                </form>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
     </main>
   );
 }

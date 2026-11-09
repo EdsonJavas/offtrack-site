@@ -20,6 +20,140 @@
   gap: 8px;
 }
 
+/* Seções do painel: Peças · Desempenho · Loja */
+.sections {
+  display: flex;
+  gap: 4px;
+  order: 3;
+  width: 100%;
+  padding: 4px;
+  border: 1px solid var(--line);
+  background: var(--c-ink);
+}
+
+.section {
+  flex: 1;
+  padding: 11px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--c-gray-200);
+  transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+.section:hover {
+  color: var(--c-white);
+}
+
+.sectionOn {
+  background: var(--c-white);
+  color: var(--c-black);
+}
+
+@media (min-width: 900px) {
+  .sections {
+    order: 0;
+    width: auto;
+    margin-left: auto;
+    margin-right: 8px;
+  }
+
+  .section {
+    flex: 0 0 auto;
+    padding-inline: 18px;
+  }
+}
+
+/* ---- Reordenar ---- */
+
+.orderStatus {
+  margin-bottom: 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+}
+
+.reorder {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-self: stretch;
+  justify-content: center;
+}
+
+/* Puxador: três riscos; segura e arrasta (mouse ou dedo). */
+.handle {
+  display: grid;
+  gap: 3px;
+  align-content: center;
+  justify-items: center;
+  width: 32px;
+  height: 36px;
+  border: 1px solid var(--line);
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle span {
+  width: 14px;
+  height: 1.5px;
+  background: var(--c-gray-200);
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+.arrowBtn {
+  width: 32px;
+  height: 26px;
+  border: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--c-gray-200);
+}
+
+.arrowBtn:hover:not(:disabled) {
+  background: var(--c-white);
+  color: var(--c-black);
+}
+
+.arrowBtn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.itemIndex {
+  margin-right: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--c-gray-200);
+}
+
+.itemWas {
+  margin-left: 8px;
+  color: var(--fg-muted);
+}
+
+.confirmText {
+  align-self: center;
+  font-size: 12px;
+  color: #ff9b9b;
+}
+
+.dangerSolid {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 16px;
+  background: #ff6b6b;
+  color: var(--c-black);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
 .eyebrow {
   font-size: 11px;
   letter-spacing: 0.26em;
@@ -33,7 +167,8 @@
 
 .title {
   margin-top: 6px;
-  font-size: 32px;
+  /* Syne ≈ 1,24em por letra: "DESEMPENHO" precisa caber em 350px no celular. */
+  font-size: clamp(22px, 7vw, 32px);
 }
 
 .primary,
@@ -128,23 +263,45 @@
 
 .item {
   display: grid;
-  grid-template-columns: 64px 1fr;
+  grid-template-columns: auto 64px 1fr;
   gap: 14px;
   align-items: center;
   padding: 12px;
   border: 1px solid var(--line);
   background: var(--c-ink);
+  transition: transform 200ms var(--ease-out);
+}
+
+/* Item arrastado: acima dos outros, sem transição (segue o dedo). */
+.itemDragging {
+  position: relative;
+  z-index: 2;
+  border-color: var(--c-white);
+  background: var(--c-graphite);
+  transition: none;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
 }
 
 .itemOff {
   opacity: 0.55;
 }
 
+/* Colunas fixas: sem o puxador (modo leitura) a miniatura continua na 2ª. */
+.reorder {
+  grid-column: 1;
+}
+
 .thumb {
+  grid-column: 2;
   position: relative;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--c-gray-800);
+}
+
+.itemBody {
+  grid-column: 3;
+  min-width: 0;
 }
 
 .itemMeta {
@@ -447,11 +604,12 @@
 
 @media (min-width: 700px) {
   .item {
-    grid-template-columns: 64px 1fr auto;
+    grid-template-columns: auto 64px 1fr auto;
   }
 
   .itemActions {
-    grid-column: auto;
+    grid-column: 4;
+    justify-content: flex-end;
   }
 
   .grid2 {

@@ -72,9 +72,15 @@
   position: relative;
   display: grid;
   gap: 18px;
+  margin: 0;
+  min-inline-size: 0; /* fieldset: sem a largura mínima que o navegador impõe */
   padding: 22px 18px 24px;
   border: 1px solid var(--line);
   background: var(--c-ink);
+}
+
+.station:disabled {
+  opacity: 0.7;
 }
 
 /* Listra de fita no topo de cada estação. */
@@ -248,6 +254,36 @@ textarea.input {
 
 .priceInput::placeholder {
   color: var(--c-gray-600);
+}
+
+.priceInputSmall {
+  font-size: 24px;
+  color: var(--c-gray-200);
+}
+
+/* Chip "esgotado": riscado na diagonal, como no site. */
+.chipOff,
+.chipOff:hover {
+  border-color: var(--line);
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    var(--c-gray-200) calc(50% - 0.5px) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+  color: var(--c-gray-400);
+}
+
+.soldOutRow {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+
+.cardSizeOff {
+  color: var(--c-gray-600);
+  text-decoration: line-through;
 }
 
 .helpSmall {
@@ -961,6 +997,11 @@ textarea.input {
   letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--c-gray-600);
+}
+
+.cardPrice s {
+  letter-spacing: 0.04em;
+  text-transform: none;
 }
 
 .cardPrice strong {

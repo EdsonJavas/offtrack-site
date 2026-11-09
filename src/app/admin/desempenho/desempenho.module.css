@@ -1,0 +1,315 @@
+/* Desempenho: números grandes em Syne, fitas e a mesma grade do painel. */
+
+.toolbar {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.periods {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  background: var(--c-ink);
+  width: fit-content;
+}
+
+.period {
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-gray-200);
+  transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+.period:hover {
+  color: var(--c-white);
+}
+
+.periodOn {
+  background: var(--c-white);
+  color: var(--c-black);
+}
+
+.legend {
+  max-width: 60ch;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--fg-muted);
+}
+
+/* ---- Totais ---- */
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.stat {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 18px 16px 16px;
+  border: 1px solid var(--line);
+  background: var(--c-ink);
+}
+
+.stat::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(135deg, var(--c-white) 0 10px, transparent 10px 20px);
+  opacity: 0.18;
+}
+
+.statMain {
+  background: var(--c-white);
+  color: var(--c-black);
+  border-color: var(--c-white);
+}
+
+.statMain::before {
+  background: repeating-linear-gradient(135deg, var(--c-black) 0 10px, transparent 10px 20px);
+  opacity: 0.9;
+}
+
+.statLabel {
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.statMain .statLabel {
+  color: var(--c-gray-600);
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(32px, 6vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.statNote {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--c-gray-600);
+}
+
+/* ---- Ranking das peças ---- */
+
+.rows {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 56px minmax(0, 1fr);
+  gap: 10px 14px;
+  align-items: center;
+  padding: 12px 12px 16px;
+  border: 1px solid var(--line);
+  background: var(--c-ink);
+  overflow: hidden;
+}
+
+.rowOff {
+  opacity: 0.55;
+}
+
+.rank {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--c-gray-400);
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--c-gray-800);
+}
+
+.who {
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  margin-top: 2px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+}
+
+.counts {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.counts > div {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--line);
+}
+
+.counts dt {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.counts dd {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.counts small {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 10px;
+  color: var(--fg-muted);
+}
+
+.countMain {
+  background: var(--c-white);
+  color: var(--c-black);
+  border-color: var(--c-white) !important;
+}
+
+.countMain dt,
+.countMain small {
+  color: var(--c-gray-600);
+}
+
+/* Barra proporcional à peça mais aberta: leitura rápida do ranking. */
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--line);
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--c-white);
+}
+
+/* ---- Sem Redis ainda ---- */
+
+.setup {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  max-width: 64ch;
+  padding: 28px 22px 30px;
+  border: 1px solid var(--line);
+  background: var(--c-ink);
+}
+
+.setup::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(135deg, var(--c-white) 0 10px, transparent 10px 20px);
+  opacity: 0.18;
+}
+
+.setupEyebrow {
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.setupTitle {
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1;
+}
+
+.setupTitle span {
+  color: var(--c-silver);
+}
+
+.setupText,
+.setupNote {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--c-gray-200);
+}
+
+.setupNote {
+  color: var(--fg-muted);
+}
+
+.steps {
+  display: grid;
+  gap: 10px;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--c-gray-200);
+}
+
+.steps code {
+  padding: 1px 6px;
+  background: var(--c-gray-800);
+  font-size: 13px;
+}
+
+@media (min-width: 700px) {
+  .toolbar {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .totals {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .row {
+    grid-template-columns: auto 56px minmax(0, 1.2fr) minmax(0, 2fr);
+  }
+
+  .counts {
+    grid-column: auto;
+  }
+}
