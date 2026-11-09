@@ -370,12 +370,6 @@
   color: var(--c-white);
 }
 
-.exampleBadge {
-  padding: 4px 8px;
-  background: #ffd84d;
-  color: var(--c-black);
-}
-
 .nudge {
   animation: shake 400ms var(--ease-out);
 }

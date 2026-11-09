@@ -82,8 +82,6 @@ export interface Product {
   sku?: string;
   /** Peça aparece no site. */
   available: boolean;
-  /** Dado de exemplo: o site mostra o selo "EXEMPLO" e o painel pede substituição. */
-  example?: boolean;
   updatedAt: string;
 }
 

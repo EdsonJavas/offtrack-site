@@ -57,7 +57,7 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
             src={variant.image}
             alt={`${product.name}, ${variant.color.toLowerCase()}`}
             fill
-            sizes="(min-width: 1500px) 25vw, (min-width: 1100px) 33vw, (min-width: 700px) 50vw, 100vw"
+            sizes="(min-width: 1500px) 25vw, (min-width: 1100px) 33vw, 50vw"
             priority={index < 2}
             className={styles.photo}
             style={{ objectPosition: variant.position ?? "50% 50%" }}
@@ -72,7 +72,6 @@ export function ProductCard({ product, index, onOpen }: ProductCardProps) {
           {product.badge && (
             <span className={styles.badge}>{product.badge}</span>
           )}
-          {product.example && <span className={styles.example}>Exemplo</span>}
           <button
             type="button"
             className={`${styles.fav} ${favorite ? styles.favOn : ""}`}

@@ -1,12 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { adminConfigured, isAuthenticated } from "@/lib/adminAuth";
-import { getAllProducts, isExampleCatalog } from "@/lib/catalog";
+import { getAllProducts, usesBlobStorage } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { brand } from "@/data/brand";
 import { LoginForm } from "./LoginForm";
 import {
-  deleteExamplesAction,
   deleteProductAction,
   logoutAction,
   toggleAvailableAction,
@@ -44,11 +43,12 @@ export default async function AdminPage({
     );
   }
 
-  const [products, example, params] = await Promise.all([
+  const [products, params] = await Promise.all([
     getAllProducts(),
-    isExampleCatalog(),
     searchParams,
   ]);
+  // Sem o token do Blob, este ambiente só espelha a produção.
+  const readOnly = !usesBlobStorage();
 
   return (
     <main className={styles.shell}>
@@ -66,9 +66,11 @@ export default async function AdminPage({
               Sair
             </button>
           </form>
-          <Link href="/admin/produto/novo" className={styles.primary}>
-            + Nova peça
-          </Link>
+          {!readOnly && (
+            <Link href="/admin/produto/novo" className={styles.primary}>
+              + Nova peça
+            </Link>
+          )}
         </div>
       </header>
 
@@ -76,19 +78,20 @@ export default async function AdminPage({
         <p className={styles.success}>Peça salva. O site já está atualizado.</p>
       )}
 
-      {example && (
-        <div className={`${styles.notice} ${styles.noticeRow}`}>
-          <p>
-            O site está mostrando <strong>peças de exemplo</strong> (fotos de
-            banco, preços fictícios). Você pode editar cada uma, excluir uma a
-            uma ou apagar todas de uma vez.
-          </p>
-          <form action={deleteExamplesAction}>
-            <button type="submit" className={styles.danger}>
-              Excluir todos os exemplos
-            </button>
-          </form>
-        </div>
+      {readOnly && (
+        <p className={styles.notice}>
+          <strong>Modo leitura.</strong> Este ambiente mostra as peças
+          publicadas em produção, mas não grava. Para cadastrar ou editar, use
+          o painel do site publicado, ou coloque o{" "}
+          <code>BLOB_READ_WRITE_TOKEN</code> no <code>.env.local</code>.
+        </p>
+      )}
+
+      {products.length === 0 && (
+        <p className={styles.notice}>
+          Nenhuma peça cadastrada ainda.
+          {!readOnly && " Comece por “+ Nova peça”."}
+        </p>
       )}
 
       <ul className={styles.list}>
@@ -110,29 +113,30 @@ export default async function AdminPage({
               <p className={styles.itemMeta}>
                 {p.category} · {p.variants.map((v) => v.color).join(", ")} ·{" "}
                 {p.sizes.join(" ")}
-                {p.example && <span className={styles.tag}>exemplo</span>}
                 {!p.available && <span className={styles.tag}>oculta</span>}
               </p>
               <p className={styles.itemName}>{p.name}</p>
               <p className={styles.itemPrice}>{formatPrice(p.priceCents)}</p>
             </div>
-            <div className={styles.itemActions}>
-              <Link href={`/admin/produto/${p.id}`} className={styles.ghost}>
-                Editar
-              </Link>
-              <form action={toggleAvailableAction}>
-                <input type="hidden" name="id" value={p.id} />
-                <button type="submit" className={styles.ghost}>
-                  {p.available ? "Ocultar" : "Mostrar"}
-                </button>
-              </form>
-              <form action={deleteProductAction}>
-                <input type="hidden" name="id" value={p.id} />
-                <button type="submit" className={styles.danger}>
-                  Excluir
-                </button>
-              </form>
-            </div>
+            {!readOnly && (
+              <div className={styles.itemActions}>
+                <Link href={`/admin/produto/${p.id}`} className={styles.ghost}>
+                  Editar
+                </Link>
+                <form action={toggleAvailableAction}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <button type="submit" className={styles.ghost}>
+                    {p.available ? "Ocultar" : "Mostrar"}
+                  </button>
+                </form>
+                <form action={deleteProductAction}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <button type="submit" className={styles.danger}>
+                    Excluir
+                  </button>
+                </form>
+              </div>
+            )}
           </li>
         ))}
       </ul>

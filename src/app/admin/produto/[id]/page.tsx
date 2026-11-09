@@ -12,6 +12,8 @@ export default async function ProductEditPage({
   params: Promise<{ id: string }>;
 }) {
   if (!(await isAuthenticated())) redirect("/admin");
+  // Modo leitura (sem token do Blob): não há o que editar por aqui.
+  if (!usesBlobStorage()) redirect("/admin");
 
   const { id } = await params;
   const product =
@@ -22,10 +24,7 @@ export default async function ProductEditPage({
 
   return (
     <main className={styles.shell}>
-      <ProductForm
-        product={product ?? null}
-        uploadMode={usesBlobStorage() ? "blob" : "local"}
-      />
+      <ProductForm product={product ?? null} uploadMode="blob" />
     </main>
   );
 }

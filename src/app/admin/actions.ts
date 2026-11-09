@@ -4,11 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { destroySession, isAuthenticated } from "@/lib/adminAuth";
 import {
-  deleteExamples,
   deleteProduct,
   getAllProducts,
   saveImage,
   saveProduct,
+  usesBlobStorage,
 } from "@/lib/catalog";
 import { parsePrice } from "@/lib/format";
 import {
@@ -35,6 +35,10 @@ async function requireAuth() {
   if (!(await isAuthenticated())) redirect("/admin");
 }
 
+/** Sem o token do Blob o ambiente só espelha a produção: nada é gravado. */
+const READ_ONLY =
+  "Este ambiente está em modo leitura (sem BLOB_READ_WRITE_TOKEN). Edite pelo painel do site publicado.";
+
 function slug(text: string) {
   return text
     .normalize("NFD")
@@ -50,6 +54,7 @@ export async function saveProductAction(
   formData: FormData,
 ): Promise<ActionState> {
   await requireAuth();
+  if (!usesBlobStorage()) return { error: READ_ONLY };
 
   const name = String(formData.get("name") ?? "").trim();
   const category = String(formData.get("category") ?? "") as ProductCategory;
@@ -159,7 +164,6 @@ export async function saveProductAction(
     badge: badge === "Novo" || badge === "Destaque" ? badge : undefined,
     sku: String(formData.get("sku") ?? "").trim() || undefined,
     available: formData.get("available") === "on",
-    // Editar um exemplo o transforma em peça de verdade (o selo some).
     updatedAt: new Date().toISOString(),
   };
 
@@ -171,6 +175,7 @@ export async function saveProductAction(
 
 export async function toggleAvailableAction(formData: FormData) {
   await requireAuth();
+  if (!usesBlobStorage()) return;
   const id = String(formData.get("id") ?? "");
   const product = (await getAllProducts()).find((p) => p.id === id);
   if (!product) return;
@@ -185,15 +190,9 @@ export async function toggleAvailableAction(formData: FormData) {
 
 export async function deleteProductAction(formData: FormData) {
   await requireAuth();
+  if (!usesBlobStorage()) return;
   const id = String(formData.get("id") ?? "");
   await deleteProduct(id);
-  revalidatePath("/");
-  revalidatePath("/admin");
-}
-
-export async function deleteExamplesAction() {
-  await requireAuth();
-  await deleteExamples();
   revalidatePath("/");
   revalidatePath("/admin");
 }

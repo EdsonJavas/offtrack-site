@@ -252,9 +252,6 @@ export function ProductDetail({
                 {product.badge && (
                   <span className={styles.badge}>{product.badge}</span>
                 )}
-                {product.example && (
-                  <span className={styles.exampleBadge}>Exemplo</span>
-                )}
               </p>
               <span className={styles.stamp} aria-hidden="true">
                 OT.

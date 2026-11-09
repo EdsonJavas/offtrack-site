@@ -14,8 +14,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       // Fotos cadastradas no painel (Vercel Blob).
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
-      // Catálogo de exemplo (some quando o dono cadastra a primeira peça).
-      { protocol: "https", hostname: "images.unsplash.com", pathname: "/photo-*" },
     ],
   },
   async headers() {

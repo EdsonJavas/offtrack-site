@@ -95,19 +95,12 @@
 }
 
 .category,
-.badge,
-.example {
+.badge {
   padding: 5px 8px;
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-}
-
-/* Catálogo de exemplo: aviso visível por cima da foto. */
-.example {
-  background: #ffd84d;
-  color: var(--c-black);
 }
 
 .category {
@@ -362,6 +355,125 @@
 
 .cardAdded {
   animation: cardSqueeze 500ms var(--ease-out);
+}
+
+/* ---- Celular: card compacto para a grade de 2 colunas (~160px de largura) ----
+   Mesmo conteúdo do card grande, em escala menor; nada some. */
+@media (max-width: 699px) {
+  .top {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    flex-wrap: wrap;
+    gap: 4px;
+    /* a estrela fica fixa no canto; os selos quebram linha ao lado dela */
+    padding-right: 34px;
+  }
+
+  .category,
+  .badge {
+    padding: 4px 6px;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+  }
+
+  .fav {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+  }
+
+  .hint {
+    display: none;
+  }
+
+  .priceTag {
+    padding: 6px 14px 6px 8px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+  }
+
+  .priceLabel {
+    font-size: 7px;
+    letter-spacing: 0.18em;
+  }
+
+  .price {
+    font-size: 16px;
+  }
+
+  .body {
+    gap: 8px;
+    padding: 10px 8px 8px;
+  }
+
+  .name {
+    font-size: 12px;
+    line-height: 1.15;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+
+  .row {
+    gap: 6px;
+    min-height: 24px;
+  }
+
+  /* "Cor" e "Tam." saem: bolinhas e chips já dizem o que são. */
+  .label {
+    display: none;
+  }
+
+  .value {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .swatches {
+    gap: 8px;
+  }
+
+  .swatch {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+  }
+
+  .swatch::after {
+    inset: -4px;
+  }
+
+  .sizes {
+    gap: 4px;
+  }
+
+  .size {
+    min-width: 28px;
+    padding: 5px 4px;
+    font-size: 10px;
+  }
+
+  .add {
+    gap: 6px;
+    margin-top: 2px;
+    padding-left: 8px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    line-height: 1.25;
+    text-align: left;
+  }
+
+  .addIcon {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
 }
 
 @keyframes cardSqueeze {
